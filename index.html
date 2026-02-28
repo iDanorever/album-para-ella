@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSySyCSN-hqf0NPTMwSRw-d8A4cmiTfTHHxZg",
+      authDomain: "album-para-ella.firebaseapp.com",
+      databaseURL: "https://album-para-ella-default-rtdb.firebaseio.com",
+      projectId: "album-para-ella",
+      storageBucket: "album-para-ella.appspot.com",
+      messagingSenderId: "94346844200",
+      appId: "1:94346844200:web:cb447fad25e0c2f2bd5e2f",
+      measurementId: "G-KZD92NNT5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+    const database = firebase.database();
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nuestro Álbum de Recuerdos 💕</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.css">
+
+  <style>
+    body { 
+  background: linear-gradient(to bottom, #fff0f5, #ffe4e1); 
+  font-family: 'Georgia', serif; 
+  margin: 0; 
+  padding: 10px; 
+  text-align: center; 
+  overflow-x: hidden; 
+}
+#flipbook { 
+  width: 100vw; 
+  height: 80vh; 
+  margin: 10px auto; 
+  background: transparent; 
+}
+@media (max-width: 768px) { 
+  #flipbook { 
+    height: 70vh; /* más corto en móvil para que quepan botones abajo */
+  }
+  .photo-container { 
+    top: 8%; 
+    left: 8%; 
+    width: 84%; 
+    height: 70%; 
+  }
+  h1 { font-size: 1.5em; margin: 5px; }
+  .text-caption { font-size: 0.9em; }
+}
+@media (min-width: 769px) { 
+  #flipbook { 
+    width: 90vw; 
+    max-width: 1000px; 
+    height: 70vh; 
+    max-height: 700px; 
+  }
+  .photo-container { 
+    top: 10%; 
+    left: 15%; 
+    width: 70%; 
+    height: 60%; 
+  }
+}
+.page { overflow: visible !important; }
+.photo-container { 
+  position: absolute; 
+  border-radius: 12px; 
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2); 
+  background-size: contain; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  z-index: 5; 
+  border: 8px solid #ffe4e1; 
+  padding: 10px; 
+  background-color: white; 
+}
+.decoration { position: absolute; z-index: 1; opacity: 0.85; pointer-events: none; }
+.top-left { top: 2%; left: 2%; width: 18%; max-width: 120px; }
+.top-right { top: 2%; right: 2%; width: 18%; max-width: 120px; }
+.bottom-left { bottom: 2%; left: 2%; width: 15%; max-width: 100px; }
+.bottom-right { bottom: 2%; right: 2%; width: 15%; max-width: 100px; }
+.controls { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(255,255,255,0.7); padding: 8px 15px; border-radius: 30px; display: flex; gap: 10px; }
+.controls button { padding: 6px 14px; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9em; }
+.delete-btn { background: #ff4d4d; color: white; }
+.replace-btn { background: #ff69b4; color: white; }
+.timestamp { position: absolute; top: 2%; left: 50%; transform: translateX(-50%); color: #c71585; font-size: 0.85em; z-index: 10; background: rgba(255,255,255,0.6); padding: 4px 12px; border-radius: 20px; }
+  </style>
+</head>
+<body>
+  <h1 style="color: #c71585; font-size: 1.8em; margin: 10px;">Nuestros Momentos Eternos 💖</h1>
+
+  <div id="flipbook">
+   <div class="page">
+  <div class="photo-container" style="background-image: url('images/portada.jpg');"></div>
+  <p class="text-caption">Para ti, mi amor eterno</p>
+</div>
+  </div>
+
+  <div style="margin: 20px 0; padding: 15px; background: #fff0f5; border-radius: 15px; max-width: 400px; margin-left: auto; margin-right: auto;">
+    <h3 style="color: #c71585; margin-bottom: 10px;">Sube un recuerdo nuevo 💕</h3>
+    <input type="file" id="fileInput" accept="image/*,video/mp4,video/quicktime" style="margin-bottom: 10px;">
+    <button id="uploadBtn" style="padding: 10px 25px; background: #ff69b4; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em;">
+      Subir Foto o Video
+    </button>
+    <p id="uploadStatus" style="margin-top: 10px; color: #c71585;"></p>
+  </div>
+
+  <button id="addPageBtn" style="margin: 15px; padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; font-size: 1.1em; cursor: pointer;">
+    Agregar Nueva Página +
+  </button>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/turn.min.js"></script>
+  <script>
+    const decorations = [
+      'decorations/rosa-esquina1.png',
+      'decorations/petalos-cayendo.png',
+      'decorations/rosa-rosa-esquina.png',
+      'decorations/corazon-flor.png',
+      'decorations/flores-acuarela.png',
+      'decorations/bouquet-rosa.png',
+      'decorations/petalos-suaves.png',
+      'decorations/corazon-rosa.png',
+      'decorations/corazon-pequeno.png',
+      'decorations/rosas-pequenas.png',
+      'decorations/flor-solitaria.png',
+      'decorations/petalos-rosa.png'
+    ];
+
+    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+    function addRandomDecorations(page) {
+      const numDeco = Math.floor(Math.random() * 2) + 2;
+      const usedPos = new Set();
+      for (let i = 0; i < numDeco; i++) {
+        let pos;
+        do {
+          pos = positions[Math.floor(Math.random() * positions.length)];
+        } while (usedPos.has(pos));
+        usedPos.add(pos);
+        const decoFile = decorations[Math.floor(Math.random() * decorations.length)];
+        const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
+        page.append(img);
+      }
+    }
+function addMediaToPage(page, url, type, timestamp = null, key = null) {
+  const mediaDiv = $('<div class="photo-container"></div>').css('background-image', 'url(' + url + ')');
+
+  if (timestamp) {
+    const date = new Date(timestamp);
+    const formatted = date.toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' });
+    mediaDiv.append('<div class="timestamp">Subido el ' + formatted + '</div>');
+  }
+
+  if (key) {
+    const controls = $('<div class="controls"></div>');
+    controls.append(
+      $('<button class="delete-btn">Borrar</button>').click(() => {
+        if (confirm("¿Seguro borrar este recuerdo?")) {
+          database.ref('recuerdos/' + key).remove();
+        }
+      }),
+      $('<button class="replace-btn">Reemplazar</button>').click(() => {
+        const input = $('<input type="file" accept="image/*,video/mp4">').on('change', function(e) {
+          const newFile = e.target.files[0];
+          if (newFile) {
+            const newRef = storage.ref('recuerdos/' + newFile.name);
+            newRef.put(newFile).then(() => {
+              newRef.getDownloadURL().then(newUrl => {
+                database.ref('recuerdos/' + key).update({ url: newUrl, type: newFile.type.startsWith('video') ? 'video' : 'image' });
+              });
+            });
+          }
+        });
+        input.click();
+      })
+    );
+    mediaDiv.append(controls);
+  }
+
+  page.append(mediaDiv);
+}
+    
+    $(document).ready(function() {
+      const book = $("#flipbook").turn({
+        width: $("#flipbook").width(),
+        height: $("#flipbook").height(),
+        elevation: 50,
+        gradients: true,
+        autoCenter: true,
+        duration: 1200,
+        display: 'double',
+        turnCorners: 'bl,br'
+// Forzar redraw constante cada vez que se agrega o cambia página
+book.bind("turned", function(event, page) {
+  setTimeout(() => book.turn('redraw'), 100);
+});
+      });
+
+      // Cargar recuerdos guardados
+      if (typeof database !== 'undefined' && database) {
+        database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+          while (book.turn('pages') > 1) {
+            book.turn('removePage', book.turn('pages'));
+          }
+
+          snapshot.forEach((child) => {
+            const data = child.val();
+            const newPage = $('<div class="page"></div>');
+            addRandomDecorations(newPage);
+            addMediaToPage(newPage, data.url, data.type, data.timestamp, child.key);
+            book.turn('addPage', newPage);
+          });
+
+          // Forzar redraw para que las imágenes se queden
+          setTimeout(() => book.turn('redraw'), 300);
+        });
+      }
+
+      $("#addPageBtn").click(function() {
+        const newPage = $('<div class="page"></div>');
+        addRandomDecorations(newPage);
+        book.turn('addPage', newPage, book.turn('pages') + 1);
+        book.turn('page', book.turn('pages'));
+      });
+
+      $(window).resize(function() {
+        book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+      });
+
+      console.log("Firebase inicializado:", firebase.app().name);
+    });
+
+    // Subir archivo
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const status = document.getElementById('uploadStatus');
+      if (!file) {
+        status.textContent = "Elige una foto o video primero 💕";
+        status.style.color = "red";
+        return;
+      }
+      status.textContent = "Subiendo... espera un momento 😊";
+      status.style.color = "#c71585";
+
+      const storageRef = storage.ref('recuerdos/' + file.name);
+      const uploadTask = storageRef.put(file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {},
+        (error) => {
+          console.error('Error:', error);
+          status.textContent = "Error al subir 😔 Intenta de nuevo.";
+          status.style.color = "red";
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            const newRecuerdoRef = database.ref('recuerdos').push();
+            newRecuerdoRef.set({
+              url: downloadURL,
+              type: file.type.startsWith('video') ? 'video' : 'image',
+              name: file.name,
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            status.textContent = "¡Recuerdo agregado! 💖";
+            status.style.color = "green";
+            fileInput.value = '';
+          });
+        }
+      );
+    });
+  </script>
+</body>
+</html>
