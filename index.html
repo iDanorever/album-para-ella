@@ -445,18 +445,7 @@ $("#flipbook").css({
     
 
 //                                                                               Inicializamos flipbook
-$(document).ready(function () {
 
-  book = $("#flipbook").turn({
-    width: $("#flipbook").width(),
-    height: $("#flipbook").height(),
-    autoCenter: true,
-    pages: 2,
-    display: window.innerWidth < 768 ? "single" : "double",
-    acceleration: true
-  });
-
-});
     
 $(window).resize(function () {
 
@@ -644,6 +633,7 @@ testImages.forEach((imgSrc, index) => {
 </script>
 </body>
 </html>
+
 
 
 
