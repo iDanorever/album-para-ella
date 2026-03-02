@@ -209,17 +209,7 @@ z-index: 1;
     </div>
     </div>
 </div> <!-- ✅ AQUÍ SE CIERRA EL FLIPBOOK -->
-<div class="book-wrapper">
-  <div id="flipbook">
-    <div class="page">
-      <h2>Portada 💖</h2>
-    </div>
-  </div>
-</div>
 
-<button id="prevPage">⬅</button>
-<button id="nextPage">➡</button>
-<button id="addPageBtn">➕</button>
 
 <!-- Flechas de navegación (FUERA del flipbook) -->
 <div class="navigation-arrows" 
@@ -259,9 +249,14 @@ z-index: 1;
   </button>
 </div>
 
+
+   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="js/turn.min.js"></script>
   <script>
+
+
+    
     // Inicialización global para book
     let book;
 
@@ -446,23 +441,45 @@ function addMediaToPage(page, url, timestamp = null, key = null) {
   return true;
 }
 
-// 🔥 Evitar que el flipbook tape el botón
+//                                                                       🔥 Evitar que el flipbook tape el botón
 $("#flipbook").css({
   marginBottom: "60px",
   position: "relative",
   zIndex: 1
 });
 
-// Inicializamos flipbook
-book = $("#flipbook").turn({
-  width: $("#flipbook").width(),
-  height: $("#flipbook").height(),
-  autoCenter: true,
-  pages: 2,           // portada + hoja vacía
-  display: 'double',
-  acceleration: true
+    
+
+//                                                                               Inicializamos flipbook
+$(document).ready(function () {
+
+  book = $("#flipbook").turn({
+    width: $("#flipbook").width(),
+    height: $("#flipbook").height(),
+    autoCenter: true,
+    pages: 2,
+    display: window.innerWidth < 768 ? "single" : "double",
+    acceleration: true
+  });
+
+});
+    
+$(window).resize(function () {
+
+  book.turn("size",
+    $("#flipbook").width(),
+    $("#flipbook").height()
+  );
+
+  if (window.innerWidth < 768) {
+    book.turn("display", "single");
+  } else {
+    book.turn("display", "double");
+  }
+
 });
 
+    
 // Si solo tienes la portada, agrega una página vacía a la derecha
 if (book.turn('pages') < 2) {
   const emptyPage = $('<div class="page"></div>');
@@ -548,12 +565,6 @@ console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
   console.log("Decoraciones cargadas:", decorations);
   console.log("Flipbook inicializado correctamente");
 
-// Prueba manual: agregar páginas con imágenes tuyas para probar volteo
-const testImages = [
-  'images/fotitos1.jpg',  // cambia por nombres reales de tus fotos en la carpeta images/
-  'images/fotitos2.jpg',
-  'images/fotitos3.jpg'
-];
 
 testImages.forEach((imgSrc, index) => {
   const newPage = $('<div class="page"></div>');
@@ -628,79 +639,9 @@ testImages.forEach((imgSrc, index) => {
 
 
 </script>
-<script>
-let book;
-
-$(document).ready(function () {
-
-  // =========================
-  // INICIALIZAR FLIPBOOK
-  // =========================
-  book = $("#flipbook");
-
-  book.turn({
-    width: $("#flipbook").width(),
-    height: $("#flipbook").height(),
-    autoCenter: true,
-    display: "double",
-    duration: 1000,
-    gradients: true,
-    acceleration: true,
-    elevation: 50
-  });
-
-  // =========================
-  // ASEGURAR MÍNIMO 2 PÁGINAS
-  // (Portada izquierda + hoja derecha)
-  // =========================
-  if (book.turn("pages") < 2) {
-    const emptyPage = $('<div class="page"></div>');
-    book.turn("addPage", emptyPage, 2);
-  }
-
-  // =========================
-  // BOTÓN AGREGAR PÁGINA
-  // =========================
-  $("#addPageBtn").click(function () {
-
-    const totalPages = book.turn("pages");
-
-    const newPage = $('<div class="page"></div>');
-
-    // Si tienes decoraciones automáticas, aquí las llamas
-    // addRandomDecorations(newPage);
-
-    book.turn("addPage", newPage, totalPages + 1);
-
-    // Ir automáticamente a la nueva hoja
-    book.turn("page", totalPages + 1);
-  });
-
-  // =========================
-  // BOTONES NAVEGACIÓN
-  // =========================
-  $("#prevPage").click(function () {
-    book.turn("previous");
-  });
-
-  $("#nextPage").click(function () {
-    book.turn("next");
-  });
-
-  // =========================
-  // AJUSTE RESPONSIVE
-  // =========================
-  $(window).resize(function () {
-    book.turn("size",
-      $("#flipbook").width(),
-      $("#flipbook").height()
-    );
-  });
-
-});
-</script>
 </body>
 </html>
+
 
 
 
