@@ -479,6 +479,12 @@ $(document).ready(function () {
     const emptyPage = $('<div class="page"></div>');
     addRandomDecorations(emptyPage);
     book.turn('addPage', emptyPage);
+
+    
+                                                                               // Mejorar touch en móvil
+  if ('ontouchstart' in window) {
+    book.turn('options', { acceleration: true, shadows: false });
+  }
   }
 
 }); 
@@ -536,14 +542,11 @@ for (let i = totalPages; i > 1; i--) {
   setTimeout(() => {
     book.turn('page', totalPages + 1);
   }, 300);
+
+   console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
 });
 
-console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
 
-  // Mejorar touch en móvil
-  if ('ontouchstart' in window) {
-    book.turn('options', { acceleration: true, shadows: false });
-  }
 
   // Botones de navegación
   document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
@@ -633,6 +636,7 @@ testImages.forEach((imgSrc, index) => {
 </script>
 </body>
 </html>
+
 
 
 
