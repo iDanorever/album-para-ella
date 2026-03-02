@@ -474,12 +474,25 @@ $(window).resize(function () {
 });
 
     
-// Si solo tienes la portada, agrega una página vacía a la derecha
-if (book.turn('pages') < 2) {
-  const emptyPage = $('<div class="page"></div>');
-  addRandomDecorations(emptyPage);
-  book.turn('addPage', emptyPage);
-}
+                                                   // Si solo tienes la portada, agrega una página vacía a la derecha
+$(document).ready(function () {
+
+  book = $("#flipbook").turn({
+    width: $("#flipbook").width(),
+    height: $("#flipbook").height(),
+    autoCenter: true,
+    display: window.innerWidth < 768 ? "single" : "double",
+    acceleration: true
+  });
+
+  // 🔥 AHORA sí existe book
+  if (book.turn('pages') < 2) {
+    const emptyPage = $('<div class="page"></div>');
+    addRandomDecorations(emptyPage);
+    book.turn('addPage', emptyPage);
+  }
+
+}); 
 
   // Cargar recuerdos guardados (solo si Firebase está disponible)
   if (typeof database !== 'undefined' && database) {
@@ -537,10 +550,6 @@ for (let i = totalPages; i > 1; i--) {
 });
 
 console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
-
-  $(window).resize(function() {
-    book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-  });
 
   // Mejorar touch en móvil
   if ('ontouchstart' in window) {
@@ -635,6 +644,7 @@ testImages.forEach((imgSrc, index) => {
 </script>
 </body>
 </html>
+
 
 
 
