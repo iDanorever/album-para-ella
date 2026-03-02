@@ -514,11 +514,7 @@ for (let i = totalPages; i > 1; i--) {
   }, 300);
 });
 
-
-
-
-  console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
-});
+console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
 
   $(window).resize(function() {
     book.turn('size', $("#flipbook").width(), $("#flipbook").height());
@@ -572,45 +568,53 @@ testImages.forEach((imgSrc, index) => {
   book.turn('addPage', newPage);
 });
 
-    // Subir archivo (solo imágenes)
-    document.getElementById('uploadBtn').addEventListener('click', function() {
-      const fileInput = document.getElementById('fileInput');
-      const file = fileInput.files[0];
-      const status = document.getElementById('uploadStatus');
-      if (!file) {
-        status.textContent = "Elige una foto primero 💕";
-        status.style.color = "red";
-        return;
-      }
-      status.textContent = "Procesando... espera un momento 😊";
-      status.style.color = "#c71585";
-      const storageRef = storage.ref('recuerdos/' + file.name);
-      const uploadTask = storageRef.put(file);
-      uploadTask.on('state_changed',
-        (snapshot) => {},
-        (error) => {
-          console.error('Error:', error);
-          status.textContent = "Error al subir 😔 Intenta de nuevo.";
-          status.style.color = "red";
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            const newRecuerdoRef = database.ref('recuerdos').push();
-            newRecuerdoRef.set({
-              url: downloadURL,
-              type: 'image',
-              name: file.name,
-              timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            status.textContent = "¡Recuerdo agregado! 💖";
-            status.style.color = "green";
-            fileInput.value = '';
-          });
-        }
-      );
-    });
+  document.getElementById("uploadBtn").addEventListener("click", function() {
 
-console.log("Total páginas antes:", book.turn('pages'));
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  const status = document.getElementById('uploadStatus');
+
+  if (!file) {
+    status.textContent = "Selecciona una imagen primero 💕";
+    return;
+  }
+
+  status.textContent = "Subiendo a Cloudinary... 💕";
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'album_preset');
+
+  fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if (data.secure_url) {
+
+      const newRecuerdoRef = database.ref('recuerdos').push();
+      newRecuerdoRef.set({
+        url: data.secure_url,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      status.textContent = "¡Recuerdo agregado! 💖";
+      fileInput.value = "";
+    } else {
+      status.textContent = "Error al subir 😔";
+      console.log(data);
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    status.textContent = "Error al subir 😔";
+  });
+
+});
+
 
 </script>
 </body>
