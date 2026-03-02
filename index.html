@@ -442,28 +442,9 @@ $("#flipbook").css({
   zIndex: 1
 });
 
-    
-
-//                                                                               Inicializamos flipbook
 
     
-$(window).resize(function () {
-
-  book.turn("size",
-    $("#flipbook").width(),
-    $("#flipbook").height()
-  );
-
-  if (window.innerWidth < 768) {
-    book.turn("display", "single");
-  } else {
-    book.turn("display", "double");
-  }
-
-});
-
-    
-                                                   // Si solo tienes la portada, agrega una página vacía a la derecha
+                                                                          // $(document).ready(function () {
 $(document).ready(function () {
 
   book = $("#flipbook").turn({
@@ -489,43 +470,23 @@ $(document).ready(function () {
 
 }); 
 
-  // Cargar recuerdos guardados (solo si Firebase está disponible)
-  if (typeof database !== 'undefined' && database) {
-    database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+                                                                              // $(window).resize(function () {
 
-  // Borrar TODAS las páginas menos la portada
-  const totalPages = book.turn('pages');
-for (let i = totalPages; i > 1; i--) {
-  book.turn('removePage', i);
-}
-
-  let currentPage = null;
-
-  snapshot.forEach((child) => {
-    const data = child.val();
-
-    if (!currentPage || 
-        !currentPage.find('.photo-wrapper').length || 
-        currentPage.find('.photo-wrapper').children().length >= 2) {
-
-      currentPage = $('<div class="page"></div>');
-      addRandomDecorations(currentPage);
-      book.turn('addPage', currentPage);
-    }
-
-    addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+    
+  
+$(window).resize(function () {
+    book.turn("size",
+      $("#flipbook").width(),
+      $("#flipbook").height()
+    );
+    book.turn("display", window.innerWidth < 768 ? "single" : "double");
   });
-
-  setTimeout(() => book.turn('redraw'), 400);
-});
-
-  } else {
-    console.warn("Firebase no está disponible, no se cargarán recuerdos");
-  }
+   
 
 
 
 
+                                                                 //    $("#addPageBtn").click(function() {
  $("#addPageBtn").click(function() {
   const newPage = $('<div class="page"></div>');
 
@@ -552,6 +513,8 @@ for (let i = totalPages; i > 1; i--) {
   document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
   document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
 
+
+                                                         //     $("#flipbook").bind("turned", function(event, page) {
   $("#flipbook").bind("turned", function(event, page) {
     document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
     document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
@@ -560,31 +523,330 @@ for (let i = totalPages; i > 1; i--) {
   console.log("Decoraciones cargadas:", decorations);
   console.log("Flipbook inicializado correctamente");
 
+    
+ // Cargar recuerdos guardados (solo si Firebase está disponible)
+    
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/turn.min.js"></script>
+  <script>
 
-testImages.forEach((imgSrc, index) => {
-  const newPage = $('<div class="page"></div>');
-  addRandomDecorations(newPage);
 
-  const mediaDiv = $('<div class="photo-container"></div>').css({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%'
+    
+    // Inicialización global para book
+    let book;
+
+    const decorations = [
+      'decorations/rosa-esquina1.png',
+      'decorations/petalos-cayendo.png',
+      'decorations/rosa-rosa-esquina.png',
+      'decorations/corazon-flor.png',
+      'decorations/flores-acuarela.png',
+      'decorations/bouquet-rosa.png',
+      'decorations/petalos-suaves.png',
+      'decorations/corazon-rosa.png',
+      'decorations/corazon-pequeno.png',
+      'decorations/rosas-pequenas.png',
+      'decorations/flor-solitaria.png',
+      'decorations/petalos-rosa.png'
+    ];
+
+    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+    const decorPositions = {
+      'rosa-esquina1.png': ['top-left', 'top-right'],
+      'petalos-cayendo.png': ['bottom-left', 'bottom-right'],
+      'rosa-rosa-esquina.png': ['top-right', 'bottom-right'],
+      'corazon-flor.png': ['top-left', 'top-right'],
+      'flores-acuarela.png': ['bottom-left', 'bottom-right'],
+      'bouquet-rosa.png': ['bottom-left', 'bottom-right'],
+      'petalos-suaves.png': ['bottom-left', 'bottom-right'],
+      'corazon-rosa.png': ['top-left', 'top-right'],
+      'corazon-pequeno.png': ['bottom-left', 'bottom-right'],
+      'rosas-pequenas.png': ['bottom-left', 'bottom-right'],
+      'flor-solitaria.png': ['top-left', 'bottom-left'],
+      'petalos-rosa.png': ['bottom-left', 'bottom-right']
+    };
+
+
+
+   function addRandomDecorations(page) {
+  const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+  const decorations = [
+    'rosa-esquina1.png',
+    'petalos-cayendo.png',
+    'rosa-rosa-esquina.png',
+    'corazon-flor.png',
+    'flores-acuarela.png',
+    'bouquet-rosa.png',
+    'petalos-suaves.png',
+    'corazon-rosa.png',
+    'corazon-pequeno.png',
+    'rosas-pequenas.png',
+    'flor-solitaria.png',
+    'petalos-rosa.png'
+  ];
+
+
+
+  // Elegir aleatoriamente 1 o 2 decorations para esta página
+  const numDeco = Math.floor(Math.random() * 2) + 1;
+  const usedPositions = new Set();
+
+  for (let i = 0; i < numDeco; i++) {
+    let pos;
+    do {
+      pos = positions[Math.floor(Math.random() * positions.length)];
+    } while (usedPositions.has(pos));
+    usedPositions.add(pos);
+
+    // Elegir una decoration random
+    const decoFile = 'decorations/' + decorations[Math.floor(Math.random() * decorations.length)];
+    const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
+
+    // Detectar si no carga
+    img.on('error', function() {
+      console.error('No se pudo cargar la imagen:', decoFile);
+    });
+
+    page.append(img);
+  }
+
+
+
+
+
+  // Si no se agregó ninguna decoración, agregamos una por defecto para evitar página vacía
+  if (page.children().length === 0) {
+    const img = $('<img>')
+      .addClass('decoration top-left rosa-esquina1')
+      .attr('src', 'decorations/rosa-esquina1.png')
+      .css({ opacity: 0.8, position: 'absolute' });
+    page.append(img);
+  }
+}
+
+
+
+function addMediaToPage(page, url, timestamp = null, key = null) {
+
+  let container = page.find('.photo-wrapper');
+
+  // Si no existe el contenedor, lo creamos
+  if (container.length === 0) {
+    container = $('<div class="photo-wrapper"></div>').css({
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '15px',
+      padding: '30px',
+      height: '100%',
+      alignItems: 'center'
+    });
+    page.append(container);
+  }
+
+  // Si ya hay 2 fotos, no permitir más
+  if (container.children().length >= 2) {
+    alert("Esta hoja ya tiene 2 recuerdos 💕 Agrega una nueva página.");
+    return false;
+  }
+
+  const photoBox = $('<div></div>').css({
+    position: 'relative',
+    textAlign: 'center'
   });
 
-  const img = $('<img>').attr('src', imgSrc).css({
-    maxWidth: '80%',
-    maxHeight: '80%',
-    objectFit: 'contain'
+  const img = $('<img>').attr('src', url).css({
+    width: '100%',
+    maxHeight: '300px',
+    objectFit: 'cover',
+    borderRadius: '10px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
   });
 
-  mediaDiv.append(img);
-  mediaDiv.append('<div class="timestamp">Prueba foto ' + (index + 1) + '</div>');
+  photoBox.append(img);
 
-  newPage.append(mediaDiv);
-  book.turn('addPage', newPage);
+  // Timestamp
+  if (timestamp) {
+    const date = new Date(timestamp);
+    const formatted = date.toLocaleString('es-PE', { dateStyle: 'short' });
+    photoBox.append('<div class="timestamp">📅 ' + formatted + '</div>');
+  }
+
+  // Opciones (editar / borrar)
+  if (key) {
+    const controls = $('<div class="controls"></div>');
+
+    const deleteBtn = $('<button class="delete-btn">Borrar</button>').click(() => {
+      if (confirm("¿Seguro borrar este recuerdo?")) {
+        database.ref('recuerdos/' + key).remove();
+      }
+    });
+
+    const replaceBtn = $('<button class="replace-btn">Editar</button>').click(() => {
+      const input = $('<input type="file" accept="image/*">').on('change', function(e) {
+        const newFile = e.target.files[0];
+        if (newFile) {
+          const newRef = storage.ref('recuerdos/' + newFile.name);
+          newRef.put(newFile).then(() => {
+            newRef.getDownloadURL().then(newUrl => {
+              database.ref('recuerdos/' + key).update({ 
+                url: newUrl, 
+                timestamp: firebase.database.ServerValue.TIMESTAMP 
+              });
+            });
+          });
+        }
+      });
+      input.click();
+    });
+
+    controls.append(deleteBtn, replaceBtn);
+    photoBox.append(controls);
+  }
+
+  container.append(photoBox);
+
+  // Si ahora ya hay 2 fotos → hacer flip automático
+  if (container.children().length === 2) {
+    setTimeout(() => {
+      book.turn('next');
+    }, 600);
+  }
+
+  return true;
+}
+
+//                                                                       🔥 Evitar que el flipbook tape el botón
+$("#flipbook").css({
+  marginBottom: "60px",
+  position: "relative",
+  zIndex: 1
 });
 
+
+    
+                                                                          // $(document).ready(function () {
+$(document).ready(function () {
+
+  book = $("#flipbook").turn({
+    width: $("#flipbook").width(),
+    height: $("#flipbook").height(),
+    autoCenter: true,
+    display: window.innerWidth < 768 ? "single" : "double",
+    acceleration: true
+  });
+
+  // 🔥 AHORA sí existe book
+  if (book.turn('pages') < 2) {
+    const emptyPage = $('<div class="page"></div>');
+    addRandomDecorations(emptyPage);
+    book.turn('addPage', emptyPage);
+
+    
+                                                                               // Mejorar touch en móvil
+  if ('ontouchstart' in window) {
+    book.turn('options', { acceleration: true, shadows: false });
+  }
+  }
+
+}); 
+
+                                                                              // $(window).resize(function () {
+
+    
+  
+$(window).resize(function () {
+    book.turn("size",
+      $("#flipbook").width(),
+      $("#flipbook").height()
+    );
+    book.turn("display", window.innerWidth < 768 ? "single" : "double");
+  });
+   
+
+
+
+
+                                                                 //    $("#addPageBtn").click(function() {
+ $("#addPageBtn").click(function() {
+  const newPage = $('<div class="page"></div>');
+
+  addRandomDecorations(newPage);
+
+  // Contenido mínimo para que Turn.js la muestre
+  if (newPage.children().length === 0) {
+    newPage.text("Nueva hoja 🖼️");
+  }
+
+  const totalPages = book.turn('pages');   
+  book.turn('addPage', newPage, totalPages + 1);
+
+  setTimeout(() => {
+    book.turn('page', totalPages + 1);
+  }, 300);
+
+   console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
+});
+
+
+
+  // Botones de navegación
+  document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
+  document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+
+
+                                                         //     $("#flipbook").bind("turned", function(event, page) {
+  $("#flipbook").bind("turned", function(event, page) {
+    document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+    document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+  });
+
+  console.log("Decoraciones cargadas:", decorations);
+  console.log("Flipbook inicializado correctamente");
+
+    
+ // Cargar recuerdos guardados (solo si Firebase está disponible)
+
+if (typeof database !== 'undefined' && database) {
+
+  database.ref('recuerdos')
+    .orderByChild('timestamp')
+    .on('value', (snapshot) => {
+
+      // borrar páginas
+      const totalPages = book.turn('pages');
+      for (let i = totalPages; i > 1; i--) {
+        book.turn('removePage', i);
+      }
+
+      let currentPage = null;
+
+      snapshot.forEach((child) => {
+        const data = child.val();
+
+        if (!currentPage || 
+            !currentPage.find('.photo-wrapper').length || 
+            currentPage.find('.photo-wrapper').children().length >= 2) {
+
+          currentPage = $('<div class="page"></div>');
+          addRandomDecorations(currentPage);
+          book.turn('addPage', currentPage);
+        }
+
+        addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+      });
+
+      setTimeout(() => book.turn('redraw'), 400);
+
+    });
+
+} else {
+  console.warn("Firebase no está disponible");
+} 
+    
+                                                                //           document.getElementById("uploadBtn").addEventListener("click", function() {
+
+    
   document.getElementById("uploadBtn").addEventListener("click", function() {
 
   const fileInput = document.getElementById("fileInput");
@@ -611,17 +873,16 @@ testImages.forEach((imgSrc, index) => {
 
     if (data.secure_url) {
 
-      const newRecuerdoRef = database.ref('recuerdos').push();
-      newRecuerdoRef.set({
+      database.ref('recuerdos').push({
         url: data.secure_url,
         timestamp: firebase.database.ServerValue.TIMESTAMP
       });
 
       status.textContent = "¡Recuerdo agregado! 💖";
       fileInput.value = "";
+
     } else {
       status.textContent = "Error al subir 😔";
-      console.log(data);
     }
 
   })
@@ -636,15 +897,4 @@ testImages.forEach((imgSrc, index) => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
