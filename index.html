@@ -80,17 +80,41 @@
       margin: 0 auto;
       display: block;
     }
+    
     @media (max-width: 768px) {
-      .photo-container img {
-        max-width: 90% !important;
-      }
-      h1 {
-        font-size: 1.6em;
-      }
-      .text-caption {
-        font-size: 1.1em;
-      }
-    }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #flipbook {
+    width: 95vw !important;
+    height: 500px !important;
+  }
+
+  .page {
+    padding: 10px;
+  }
+
+  #flipbook .page img {
+    max-width: 85% !important;
+  }
+
+  img {
+    width: 100% !important;
+  }
+
+  h1 {
+    font-size: 1.6em;
+  }
+
+  p.text-caption {
+    font-size: 1.2em;
+  }
+
+}
     .decoration {
       position: absolute;
       z-index: 1;
@@ -112,28 +136,7 @@
       margin: 0 auto;
       display: block;
     }
-    @media (max-width: 768px) {
-      #flipbook .page img {
-        max-width: 85% !important;
-      }
-      .page {
-        background-size: 100% 30px, 100% 100%;
-        padding: 10px;
-      }
-      div[style*="max-width: 70%"] {
-        max-width: 85% !important;
-        padding: 20px 10px !important;
-      }
-      img {
-        width: 100% !important;
-      }
-      h1 {
-        font-size: 1.6em;
-      }
-      p.text-caption {
-        font-size: 1.2em;
-      }
-    }
+   
     /* Tamaños y opacidad por imagen */
     .decoration.rosa-esquina1 { max-width: 120px; opacity: 0.85; transform: rotate(-15deg); }
     .decoration.petalos-cayendo { max-width: 180px; opacity: 0.65; animation: fadeDown 10s linear infinite; }
@@ -345,7 +348,6 @@
 }
 
 
-
 function addMediaToPage(page, url, timestamp = null, key = null) {
 
   let container = page.find('.photo-wrapper');
@@ -435,7 +437,7 @@ function addMediaToPage(page, url, timestamp = null, key = null) {
   return true;
 }
 
-//                                                                       🔥 Evitar que el flipbook tape el botón
+//                                                                          🔥 Evitar que el flipbook tape el botón
 $("#flipbook").css({
   marginBottom: "60px",
   position: "relative",
@@ -443,26 +445,26 @@ $("#flipbook").css({
 });
 
 
-    
-                                                                          // $(document).ready(function () {
+     
+                                                                                     // $(document).ready(function () {
 $(document).ready(function () {
 
   book = $("#flipbook").turn({
-    width: $("#flipbook").width(),
-    height: $("#flipbook").height(),
-    autoCenter: true,
-    display: window.innerWidth < 768 ? "single" : "double",
-    acceleration: true
-  });
+  width: window.innerWidth < 768 ? 350 : 800,
+  height: window.innerWidth < 768 ? 500 : 600,
+  autoCenter: true,
+  display: window.innerWidth < 768 ? "single" : "double",
+  acceleration: true
+});
 
-  // 🔥 AHORA sí existe book
+                                                                                                 // 🔥 AHORA sí existe book
   if (book.turn('pages') < 2) {
     const emptyPage = $('<div class="page"></div>');
     addRandomDecorations(emptyPage);
     book.turn('addPage', emptyPage);
 
     
-                                                                               // Mejorar touch en móvil
+                                                                                       // Mejorar touch en móvil
   if ('ontouchstart' in window) {
     book.turn('options', { acceleration: true, shadows: false });
   }
@@ -470,23 +472,27 @@ $(document).ready(function () {
 
 }); 
 
-                                                                              // $(window).resize(function () {
+                                                                                  // $(window).resize(function () {
 
     
   
 $(window).resize(function () {
-    book.turn("size",
-      $("#flipbook").width(),
-      $("#flipbook").height()
-    );
-    book.turn("display", window.innerWidth < 768 ? "single" : "double");
-  });
-   
+
+  const isMobile = window.innerWidth < 768;
+
+  book.turn("size",
+    isMobile ? 350 : 800,
+    isMobile ? 500 : 600
+  );
+
+  book.turn("display", isMobile ? "single" : "double");
+
+});
 
 
 
 
-                                                                 //    $("#addPageBtn").click(function() {
+                                                                            //  💪  $("#addPageBtn").click(function() {
  $("#addPageBtn").click(function() {
   const newPage = $('<div class="page"></div>');
 
@@ -514,7 +520,7 @@ $(window).resize(function () {
   document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
 
 
-                                                         //     $("#flipbook").bind("turned", function(event, page) {
+                                                                                //    💔 $("#flipbook").bind("turned", function(event, page) {
   $("#flipbook").bind("turned", function(event, page) {
     document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
     document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
@@ -524,7 +530,7 @@ $(window).resize(function () {
   console.log("Flipbook inicializado correctamente");
 
     
- // Cargar recuerdos guardados (solo si Firebase está disponible)
+                                                                             // ❤️Cargar recuerdos guardados (solo si Firebase está disponible)
 
 if (typeof database !== 'undefined' && database) {
 
@@ -563,7 +569,7 @@ if (typeof database !== 'undefined' && database) {
   console.warn("Firebase no está disponible");
 } 
     
-                                                                //           document.getElementById("uploadBtn").addEventListener("click", function() {
+                                                                //           🩷document.getElementById("uploadBtn").addEventListener("click", function() {
 
     
   document.getElementById("uploadBtn").addEventListener("click", function() {
@@ -616,5 +622,6 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
