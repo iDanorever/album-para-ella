@@ -80,15 +80,10 @@
       margin: 0 auto;
       display: block;
     }
+
     
     @media (max-width: 768px) {
       
-container {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-  
   body {
     display: flex;
     flex-direction: column;
@@ -177,7 +172,16 @@ container {
   justify-content: center;
 }
 
+@media (min-width: 769px) {
+
+  .upload-section,
+  #addPageWrapper {
+    display: block;
+    margin: 30px auto;
+  }
+
 }
+    
   </style>
 </head>
 <body>
@@ -620,6 +624,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
