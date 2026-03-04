@@ -206,30 +206,65 @@ body {
 <body>
   <h1 style="color: #c71585; font-size: 1.8em; margin: 10px;">Nuestros Momentos Eternos 💖</h1>
 
- <div class="book-wrapper">
-  <div id="flipbook">
-  <div class="page">
-    <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
-      
-      <img src="images/portadanueva.jpg" 
-           alt="Portada" 
-           style="width: 100%; height: auto; border: 4px solid #ffcccc; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="main-container">
 
-      <p style="color: #c71585; font-size: 1.5em; margin-top: 25px; font-weight: bold; white-space: nowrap;">
-        Para ti, mi amor eterno 💖
-      </p>
+  <!-- LIBRO -->
+  <div class="book-wrapper">
+    <div id="flipbook">
 
-      <p style="color: #c71585; font-size: 1.1em; margin-top: 15px; line-height: 1.5; opacity: 0.9;">
-        Este es un Album es para nostros para poner imagenes de recuerdo.<br>
-        Para que cada vez que ocurre un evento especial entre los 2, lo pongamos aqui♥
-      </p>
+      <!-- Página inicial -->
+      <div class="page">
+        <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
+          
+          <img src="images/portadanueva.jpg" 
+               alt="Portada" 
+               style="width: 100%; height: auto; border: 4px solid #ffcccc; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+
+          <p style="color: #c71585; font-size: 1.5em; margin-top: 25px; font-weight: bold; white-space: nowrap;">
+            Para ti, mi amor eterno 💖
+          </p>
+
+          <p style="color: #c71585; font-size: 1.1em; margin-top: 15px; line-height: 1.5; opacity: 0.9;">
+            Este es un Album es para nosotros para poner imagenes de recuerdo.<br>
+            Para que cada vez que ocurre un evento especial entre los 2, lo pongamos aqui ♥
+          </p>
+
+        </div>
+      </div>
 
     </div>
+  </div>
+
+  <!-- FORMULARIO SUBIR FOTO -->
+  <div style="margin: 20px 0; padding: 15px; background: #fff0f5; border-radius: 15px; max-width: 400px; width: 100%;">
+    <h3 style="color: #c71585; margin-bottom: 10px; text-align:center;">
+      Sube un recuerdo nuevo 💕
+    </h3>
+    
+    <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px; width: 100%;">
+    
+    <div style="text-align:center;">
+      <button id="uploadBtn"
+              style="padding: 10px 25px; background: #ff69b4; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em;">
+        Subir Foto
+      </button>
     </div>
-</div> <!-- ✅ AQUÍ SE CIERRA EL FLIPBOOK -->
+    
+    <p id="uploadStatus" style="margin-top: 10px; color: #c71585; text-align:center;"></p>
+  </div>
 
+  <!-- BOTÓN AGREGAR NUEVA PÁGINA -->
+  <div id="addPageWrapper" style="margin-bottom: 40px;">
+    <button id="addPageBtn"
+            style="padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1em;">
+      Agregar Nueva Página +
+    </button>
+  </div>
 
-<!-- Flechas de navegación (FUERA del flipbook) -->
+</div>
+
+<!-- FLECHAS (FUERA DEL MAIN CONTAINER) -->
 <div class="navigation-arrows" 
      style="display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px;">
   
@@ -243,42 +278,6 @@ body {
     →
   </button>
 </div>
-
-
-<!-- Formulario para subir fotos (FUERA del flipbook) -->
-<div style="margin: 20px 0; padding: 15px; background: #fff0f5; border-radius: 15px; max-width: 400px; margin-left: auto; margin-right: auto;">
-  <h3 style="color: #c71585; margin-bottom: 10px;">Sube un recuerdo nuevo 💕</h3>
-  
-  <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px;">
-  
-  <button id="uploadBtn"
-          style="padding: 10px 25px; background: #ff69b4; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1em;">
-    Subir Foto
-  </button>
-  
-  <p id="uploadStatus" style="margin-top: 10px; color: #c71585;"></p>
-</div>
-
-
-<!-- Botón agregar página -->
-<div class="main-container">
-
-  <div class="book-wrapper">
-    <div id="flipbook">...</div>
-  </div>
-
-  <!-- Formulario -->
-  <div class="upload-box">
-    ...
-  </div>
-
-  <!-- Botón -->
-  <div id="addPageWrapper">
-    ...
-  </div>
-
-</div>
-
 
    
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -655,6 +654,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
