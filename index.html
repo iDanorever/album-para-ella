@@ -38,9 +38,8 @@
   pointer-events: auto;
 }
  #flipbook {
-  width: 800px;
-  height: 600px;
-  margin: 0 auto;
+  width: 800px !important;
+  height: 600px !important;
 }
 
 .page {
@@ -236,6 +235,7 @@ body {
   <div class="book-wrapper">
     <div id="flipbook">
       <!-- Página inicial -->
+        <div class="page"></div>
       <div class="page">
         <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
           
@@ -507,9 +507,12 @@ $(document).ready(function () {
     width: 800,
     height: 600,
     autoCenter: true,
-    display: "single",
+    display: "double",
+    page: 2,
     acceleration: true
-});
+  });
+
+
 
                                                                                                  // 🔥 AHORA sí existe book
   if (book.turn('pages') < 2) {
@@ -676,6 +679,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
