@@ -505,13 +505,15 @@ $("#flipbook").css({
                                                                                      // $(document).ready(function () {
 $(document).ready(function () {
 
-   $("#flipbook").turn({
+  book = $("#flipbook").turn({
     width: 800,
     height: 600,
     autoCenter: true,
     display: "double",
     page: 2,
   });
+
+  if (book.turn('pages') < 2) {
 
 
 
@@ -680,6 +682,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
