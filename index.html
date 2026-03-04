@@ -37,14 +37,16 @@
 #flipbook * {
   pointer-events: auto;
 }
- #flipbook {
-  width: 800px !important;
-  height: 600px !important;
+#flipbook {
+  width: 800px;
+  height: 600px;
+  margin: 0 auto;
 }
 
 .page {
-  width: 100%;
-  height: 100%;
+  width: 400px;
+  height: 600px;
+  background: white;
 }
 
 
@@ -509,7 +511,6 @@ $(document).ready(function () {
     autoCenter: true,
     display: "double",
     page: 2,
-    acceleration: true
   });
 
 
@@ -679,6 +680,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
