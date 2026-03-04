@@ -192,7 +192,12 @@ body {
 .navigation-arrows {
   display: flex; /* esto sí debe quedarse en flex */
 }
-
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
     
   </style>
 </head>
@@ -648,6 +653,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
