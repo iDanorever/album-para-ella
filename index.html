@@ -182,13 +182,17 @@
 
 }
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
 }
 
-.book-wrapper {
-  order: 1;
+.book-wrapper,
+#addPageWrapper,
+.navigation-arrows,
+div[style*="background: #fff0f5"] {
+  width: 100%;
+  max-width: 900px;
 }
 
 div[style*="Sube un recuerdo"] {
@@ -641,6 +645,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
