@@ -237,7 +237,7 @@ body {
   <div class="book-wrapper">
     <div id="flipbook">
       <!-- Página inicial -->
-        <div class="page"></div>
+        
       <div class="page">
         <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
           
@@ -258,6 +258,7 @@ body {
       </div>
 
     </div>
+    <div class="page"></div>
   </div>
 
   <!-- FORMULARIO SUBIR FOTO -->
@@ -510,8 +511,10 @@ $(document).ready(function () {
   height: 600,
   autoCenter: true,
   display: "double",
-  page: 2,
-  gradients: false
+  page: 1,
+  gradients: true
+});
+  
 });
   $("#flipbook").on("mousedown touchstart", function(e){
   e.stopPropagation();
@@ -682,6 +685,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
