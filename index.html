@@ -256,9 +256,8 @@ body {
 
         </div>
       </div>
-
+<div class="page"></div>
     </div>
-    <div class="page"></div>
   </div>
 
   <!-- FORMULARIO SUBIR FOTO -->
@@ -506,39 +505,45 @@ $("#flipbook").css({
                                                                                      // $(document).ready(function () {
 $(document).ready(function () {
 
- book = $("#flipbook").turn({
-  width: 800,
-  height: 600,
-  autoCenter: true,
-  display: "double",
-  page: 1,
-  gradients: true
-});
-  
-});
-  $("#flipbook").on("mousedown touchstart", function(e){
-  e.stopPropagation();
-});
+  book = $("#flipbook").turn({
+    width: 800,
+    height: 600,
+    autoCenter: true,
+    display: "double",
+    page: 1,
+    gradients: true
+  });
 
-                                                                                                 // 🔥 AHORA sí existe book
+  // Si solo hay portada, agregar página vacía
   if (book.turn('pages') < 2) {
     const emptyPage = $('<div class="page"></div>');
     addRandomDecorations(emptyPage);
     book.turn('addPage', emptyPage);
+  }
 
-    
-                                                                                       // Mejorar touch en móvil
-  if ('ontouchstart' in window) {
-    book.turn('options', { acceleration: true, shadows: false });
-  }
-  }
+  // BOTÓN
+  $("#addPageBtn").click(function() {
+
+    const newPage = $('<div class="page"></div>');
+    addRandomDecorations(newPage);
+
+    if (newPage.children().length === 0) {
+      newPage.text("Nueva hoja 🖼️");
+    }
+
+    const totalPages = book.turn('pages');
+    book.turn('addPage', newPage, totalPages + 1);
+
+    setTimeout(() => {
+      book.turn('page', totalPages + 1);
+    }, 300);
+
+    console.log("Nueva página agregada. Total:", book.turn('pages'));
+  });
 
 }); 
 
                                                                                   // $(window).resize(function () {
-
-    
-  
 $(window).resize(function () {
 
   const isMobile = window.innerWidth < 768;
@@ -551,31 +556,6 @@ $(window).resize(function () {
   book.turn("display", isMobile ? "single" : "double");
 
 });
-
-
-
-
-                                                                            //  💪  $("#addPageBtn").click(function() {
- $("#addPageBtn").click(function() {
-  const newPage = $('<div class="page"></div>');
-
-  addRandomDecorations(newPage);
-
-  // Contenido mínimo para que Turn.js la muestre
-  if (newPage.children().length === 0) {
-    newPage.text("Nueva hoja 🖼️");
-  }
-
-  const totalPages = book.turn('pages');   
-  book.turn('addPage', newPage, totalPages + 1);
-
-  setTimeout(() => {
-    book.turn('page', totalPages + 1);
-  }, 300);
-
-   console.log("Nueva página agregada. Total páginas:", book.turn('pages'));
-});
-
 
 
   // Botones de navegación
@@ -685,6 +665,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
