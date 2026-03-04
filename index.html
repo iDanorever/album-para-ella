@@ -505,14 +505,17 @@ $("#flipbook").css({
                                                                                      // $(document).ready(function () {
 $(document).ready(function () {
 
-  book = $("#flipbook").turn({
-    width: 800,
-    height: 600,
-    autoCenter: true,
-    display: "double",
-    page: 2,
-  });
-
+ book = $("#flipbook").turn({
+  width: 800,
+  height: 600,
+  autoCenter: true,
+  display: "double",
+  page: 2,
+  gradients: false
+});
+  $("#flipbook").on("mousedown touchstart", function(e){
+  e.stopPropagation();
+});
 
                                                                                                  // 🔥 AHORA sí existe book
   if (book.turn('pages') < 2) {
@@ -679,6 +682,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
