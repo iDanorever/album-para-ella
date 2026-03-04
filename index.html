@@ -181,6 +181,23 @@
   }
 
 }
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.book-wrapper {
+  order: 1;
+}
+
+div[style*="Sube un recuerdo"] {
+  order: 2;
+}
+
+#addPageWrapper {
+  order: 3;
+}
     
   </style>
 </head>
@@ -624,6 +641,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
