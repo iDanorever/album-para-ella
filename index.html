@@ -37,12 +37,7 @@
 #flipbook * {
   pointer-events: auto;
 }
-  #flipbook {
-  width: 90vw;
-  max-width: 900px;
-  height: 600px;
-  margin: 0 auto !important;
-}
+  
 
 .page {
   width: 100%;
@@ -237,7 +232,6 @@ body {
   <!-- LIBRO -->
   <div class="book-wrapper">
     <div id="flipbook">
- <div class="page"></div>
       <!-- Página inicial -->
       <div class="page">
         <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
@@ -507,11 +501,11 @@ $("#flipbook").css({
 $(document).ready(function () {
 
   book = $("#flipbook").turn({
-  width: window.innerWidth < 768 ? 350 : 800,
-  height: window.innerWidth < 768 ? 500 : 600,
-  autoCenter: true,
-  display: window.innerWidth < 768 ? "single" : "double",
-  acceleration: true,
+  width: 800,
+    height: 600,
+    autoCenter: true,
+    display: "single",
+    acceleration: true
   page: 1
 });
 
@@ -680,6 +674,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
