@@ -508,7 +508,7 @@ $(document).ready(function () {
     height: 600,
     autoCenter: true,
     display: "double",
-    page: 2,
+    page: 1,
     gradients: true
   });
 
@@ -523,18 +523,15 @@ $(document).ready(function () {
   $("#addPageBtn").click(function() {
 
     const newPage = $('<div class="page"></div>');
-    addRandomDecorations(newPage);
+  addRandomDecorations(newPage);
 
-    if (newPage.children().length === 0) {
-      newPage.text("Nueva hoja 🖼️");
-    }
+  const totalPages = book.turn('pages');
 
-    const totalPages = book.turn('pages');
-    book.turn('addPage', newPage, totalPages + 1);
+  book.turn('addPage', newPage, totalPages + 1);
 
-    setTimeout(() => {
-      book.turn('page', totalPages + 1);
-    }, 300);
+  setTimeout(() => {
+    book.turn('next');
+  }, 300);
 
     console.log("Nueva página agregada. Total:", book.turn('pages'));
   });
@@ -663,6 +660,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
