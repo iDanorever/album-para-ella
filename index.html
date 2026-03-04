@@ -182,26 +182,17 @@
 
 }
 body {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
+  display: block !important;
 }
 
-.book-wrapper,
-#addPageWrapper,
-.navigation-arrows,
-div[style*="background: #fff0f5"] {
-  width: 100%;
-  max-width: 900px;
+.book-wrapper {
+  display: block !important;
 }
 
-div[style*="Sube un recuerdo"] {
-  order: 2;
+.navigation-arrows {
+  display: flex; /* esto sí debe quedarse en flex */
 }
 
-#addPageWrapper {
-  order: 3;
-}
     
   </style>
 </head>
@@ -645,6 +636,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
