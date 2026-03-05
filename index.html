@@ -192,77 +192,98 @@
         setTimeout(() => book.turn('next'), 600);
       }
       return true;
-    }
+    }$(document).ready(function() {
+  // Forzar dimensiones FIJAS antes de inicializar Turn.js (muy importante en Vercel)
+  $("#flipbook").css({
+    width: '900px',
+    height: '600px',
+    visibility: 'visible' // Evita que quede oculto al inicio
+  });
 
-    $(document).ready(function() {
-      // Forzar dimensiones explícitas
-      $("#flipbook").css({ width: '900px', height: '600px' });
+  book = $("#flipbook").turn({
+    width: 900,
+    height: 600,
+    elevation: 50,
+    gradients: true,
+    autoCenter: true,
+    duration: 1200,
+    display: 'double',
+    turnCorners: 'bl,br'
+  });
 
-      book = $("#flipbook").turn({
-        width: 900,
-        height: 600,
-        elevation: 50,
-        gradients: true,
-        autoCenter: true,
-        duration: 1200,
-        display: 'double',
-        turnCorners: 'bl,br'
+  // Crear y forzar la primera hoja en blanco INMEDIATAMENTE (sin esperar Firebase)
+  const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+  addRandomDecorations(firstPage);
+  book.turn('addPage', firstPage);
+  book.turn('page', 1);
+  book.turn('redraw');
+
+  // Esperar un poco más y refrescar vista (para que se vea estable)
+  setTimeout(() => {
+    book.turn('redraw');
+    book.turn('page', 1);
+  }, 800);
+
+  // Cargar recuerdos (solo agregar, nunca borrar ni resetear)
+  if (typeof database !== 'undefined' && database) {
+    // Carga inicial única (evita loops)
+    database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
+      let currentPage = book.turn('view')[0];
+      snapshot.forEach(child => {
+        const data = child.val();
+        if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+          currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+          addRandomDecorations(currentPage);
+          book.turn('addPage', currentPage);
+        }
+        addMediaToPage(currentPage, data.url, data.timestamp, child.key);
       });
-
-      // Crear la primera hoja en blanco SIEMPRE al inicio (sin esperar Firebase)
-      const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-      addRandomDecorations(firstPage);
-      book.turn('addPage', firstPage);
-      book.turn('page', 1);
       book.turn('redraw');
-
-      // Cargar recuerdos (solo agregar, nunca borrar)
-      if (typeof database !== 'undefined' && database) {
-        database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
-          let currentPage = book.turn('view')[0];
-          snapshot.forEach(child => {
-            const data = child.val();
-            if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-              currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-              addRandomDecorations(currentPage);
-              book.turn('addPage', currentPage);
-            }
-            addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-          });
-          book.turn('redraw');
-        });
-      }
-
-      // Agregar nueva página
-      $("#addPageBtn").click(function() {
-        const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-        addRandomDecorations(newPage);
-        const currentPages = book.turn('pages');
-        book.turn('addPage', newPage, currentPages + 1);
-        setTimeout(() => {
-          book.turn('page', currentPages + 1);
-          book.turn('redraw');
-        }, 500);
-      });
-
-      $(window).resize(function() {
-        book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-      });
-
-      if ('ontouchstart' in window) {
-        book.turn('options', { acceleration: true, shadows: false });
-      }
-
-      document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
-      document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
-
-      $("#flipbook").bind("turned", function(event, page) {
-        document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
-        document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
-      });
-
-      console.log("Flipbook inicializado");
     });
+
+    // Actualizaciones en tiempo real (solo nuevas fotos)
+    database.ref('recuerdos').on('child_added', snapshot => {
+      const data = snapshot.val();
+      let currentPage = book.turn('view')[0];
+      if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+        currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+        addRandomDecorations(currentPage);
+        book.turn('addPage', currentPage);
+      }
+      addMediaToPage(currentPage, data.url, data.timestamp, snapshot.key);
+      book.turn('redraw');
+    });
+  }
+
+  $("#addPageBtn").click(function() {
+    const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+    addRandomDecorations(newPage);
+    const currentPages = book.turn('pages');
+    book.turn('addPage', newPage, currentPages + 1);
+    setTimeout(() => {
+      book.turn('page', currentPages + 1);
+      book.turn('redraw');
+    }, 500);
+  });
+
+  $(window).resize(function() {
+    book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+  });
+
+  if ('ontouchstart' in window) {
+    book.turn('options', { acceleration: true, shadows: false });
+  }
+
+  document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
+  document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+
+  $("#flipbook").bind("turned", function(event, page) {
+    document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+    document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+  });
+
+  console.log("Flipbook inicializado");
+});
 
     // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
@@ -287,6 +308,7 @@
   </script>
 </body>
 </html>
+
 
 
 
