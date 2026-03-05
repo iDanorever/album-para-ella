@@ -247,7 +247,7 @@
     <button id="nextPage" style="background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">→</button>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+ <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="js/turn.min.js"></script>
 <script>
   let book;
@@ -359,39 +359,30 @@
       turnCorners: 'bl,br'
     });
 
-// Cargar recuerdos guardados (sin borrar páginas existentes)
-if (typeof database !== 'undefined' && database) {
-  database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
-    // NO borrar páginas automáticamente — solo agregar nuevas si hay recuerdos
-    let currentPage = book.turn('view')[1]; // Usa la hoja derecha si ya existe
-    if (!currentPage) {
-      currentPage = $('<div class="page"></div>');
-      addRandomDecorations(currentPage);
-      book.turn('addPage', currentPage);
+    // Cargar recuerdos sin borrar la hoja derecha inicial
+    if (typeof database !== 'undefined' && database) {
+      database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+        // No borrar páginas — solo agregar nuevas si hay recuerdos
+        let currentPage = book.turn('view')[1]; // Hoja derecha
+        snapshot.forEach((child) => {
+          const data = child.val();
+          if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+            currentPage = $('<div class="page"></div>');
+            addRandomDecorations(currentPage);
+            book.turn('addPage', currentPage);
+          }
+          addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+        });
+        setTimeout(() => book.turn('redraw'), 300);
+      });
     }
 
-    snapshot.forEach((child) => {
-      const data = child.val();
-      if (currentPage.find('.photo-box').length >= 2) {
-        currentPage = $('<div class="page"></div>');
-        addRandomDecorations(currentPage);
-        book.turn('addPage', currentPage);
-      }
-      addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-    });
-
-    setTimeout(() => book.turn('redraw'), 300);
-  });
-} else {
-  console.warn("Firebase no está disponible, no se cargarán recuerdos");
-}
-    
     $("#addPageBtn").click(function() {
       const newPage = $('<div class="page"></div>');
       addRandomDecorations(newPage);
       const currentPages = book.turn('pages');
       book.turn('addPage', newPage, currentPages + 1);
-      // Forzar que se muestre la nueva página en el lado derecho
+      // Forzar volteo para mostrar la nueva en el lado derecho
       setTimeout(() => {
         book.turn('page', currentPages + 1);
         book.turn('redraw');
