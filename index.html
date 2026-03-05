@@ -239,7 +239,41 @@ body {
   background: #ff1493;
   transform: scale(1.05);
 }
+.left-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+}
 
+.profile-pic {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+.description-text {
+  color: #c71585;
+  font-size: 1.3em;
+}
+
+.delete-page-x {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
     
   </style>
 </head>
@@ -531,35 +565,72 @@ $(document).ready(function () {
                                                                                           // BOTÓN AGREGAR,  $("#addPageBtn").click(function() {
   $("#addPageBtn").click(function() {
 
-  const totalPages = book.turn('pages');
+ const totalPages = book.turn('pages');
 
-  const newPage = $('<div class="page"></div>');
-  newPage.append('<div class="photo-wrapper"></div>');
+let newPage;
+
+// Si solo existen portada + vacía
+if (totalPages <= 2) {
+
+  // Crear página PERFIL
+  const profilePage = $(`
+    <div class="page">
+      <div class="left-layout">
+        <img src="images/user.png" class="profile-pic">
+        <p class="description-text">
+          Nuestro primer recuerdo juntos 💕
+        </p>
+      </div>
+    </div>
+  `);
+
+  book.turn('addPage', profilePage, totalPages + 1);
+
+  // Crear página FOTOS
+  newPage = $(`
+    <div class="page">
+      <div class="photo-wrapper"></div>
+      <button class="delete-page-x">✖</button>
+    </div>
+  `);
+
+  book.turn('addPage', newPage, totalPages + 2);
+
+} else {
+
+  // Solo crear página FOTOS
+  newPage = $(`
+    <div class="page">
+      <div class="photo-wrapper"></div>
+      <button class="delete-page-x">✖</button>
+    </div>
+  `);
 
   book.turn('addPage', newPage, totalPages + 1);
+}
 
-});
+// Botón X funcional
+newPage.find('.delete-page-x').click(function() {
 
-  // BOTÓN ELIMINAR
-  $("#deletePageBtn").click(function() {
+  const pageIndex = book.turn('page');
 
-    const currentPage = book.turn('page');
+  if (confirm("¿Eliminar esta hoja con todos sus recuerdos? 💔")) {
 
-    if (currentPage === 1) {
-      alert("No puedes borrar la portada 💕");
-      return;
-    }
+    const photos = $(book.turn('view')[1]).find('.photo-wrapper img');
 
-    const confirmDelete = confirm(
-      "¿Seguro que quieres borrar esta hoja?\nLas fotos incluidas se eliminarán."
-    );
+    photos.each(function() {
+      const imgSrc = $(this).attr('src');
+      database.ref('recuerdos').once('value', snapshot => {
+        snapshot.forEach(child => {
+          if (child.val().url === imgSrc) {
+            database.ref('recuerdos/' + child.key).remove();
+          }
+        });
+      });
+    });
 
-    if (confirmDelete) {
-      book.turn('removePage', currentPage);
-    }
-
-  });
-
+    book.turn('removePage', pageIndex);
+  }
 });
 
                                                                                   // $(window).resize(function () {
@@ -689,6 +760,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
