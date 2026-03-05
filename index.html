@@ -280,8 +280,8 @@ body {
   <div id="addPageWrapper" style="margin-bottom: 40px;">
     <button id="addPageBtn"
             style="padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1em;">
-      Agregar Nueva Página +
-    </button>
+      Agregar Nueva Página +</button>
+    <button id="deletePageBtn">Eliminar página actual</button>
   </div>
 
 </div>
@@ -512,31 +512,40 @@ $(document).ready(function () {
     gradients: true
   });
 
-  // Si solo hay portada, agregar página vacía
-  if (book.turn('pages') < 2) {
-    const emptyPage = $('<div class="page"></div>');
-    addRandomDecorations(emptyPage);
-    book.turn('addPage', emptyPage);
-  }
-
-  // BOTÓN
+  // BOTÓN AGREGAR
   $("#addPageBtn").click(function() {
-
     const newPage = $('<div class="page"></div>');
-  addRandomDecorations(newPage);
+    addRandomDecorations(newPage);
 
-  const totalPages = book.turn('pages');
+    const totalPages = book.turn('pages');
+    book.turn('addPage', newPage, totalPages + 1);
 
-  book.turn('addPage', newPage, totalPages + 1);
-
-  setTimeout(() => {
-    book.turn('next');
-  }, 300);
-
-    console.log("Nueva página agregada. Total:", book.turn('pages'));
+    setTimeout(() => {
+      book.turn('next');
+    }, 300);
   });
 
-}); 
+  // BOTÓN ELIMINAR
+  $("#deletePageBtn").click(function() {
+
+    const currentPage = book.turn('page');
+
+    if (currentPage === 1) {
+      alert("No puedes borrar la portada 💕");
+      return;
+    }
+
+    const confirmDelete = confirm(
+      "¿Seguro que quieres borrar esta hoja?\nLas fotos incluidas se eliminarán."
+    );
+
+    if (confirmDelete) {
+      book.turn('removePage', currentPage);
+    }
+
+  });
+
+});
 
                                                                                   // $(window).resize(function () {
 $(window).resize(function () {
@@ -660,6 +669,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
