@@ -566,7 +566,8 @@ $(document).ready(function () {
   $("#addPageBtn").click(function() {
     
 const totalPages = book.turn('pages');
-
+book.turn('addPage', newPage, totalPages + 1);
+    
 const newPage = $(`
   <div class="page">
     <div class="photo-wrapper"></div>
@@ -574,7 +575,6 @@ const newPage = $(`
   </div>
 `);
 
-book.turn('addPage', newPage, totalPages + 1);
 
 newPage.find('.delete-page-x').click(function () {
 
@@ -635,45 +635,56 @@ $(window).resize(function () {
 if (typeof database !== 'undefined' && database) {
 
   database.ref('recuerdos')
-  .orderByChild('timestamp')
-  .on('value', (snapshot) => {
+    .orderByChild('timestamp')
+    .on('value', (snapshot) => {
 
-    const totalPages = book.turn('pages');
-    for (let i = totalPages; i > 1; i--) {
-      book.turn('removePage', i);
-    }
+      const totalPages = book.turn('pages');
 
-    let currentPage = null;
-let pageNumber = 2;
+      // 🔥 Mantener SOLO las primeras 2 páginas:
+      // 1 = portada
+      // 2 = perfil
+      for (let i = totalPages; i > 2; i--) {
+        book.turn('removePage', i);
+      }
 
-snapshot.forEach((child) => {
+      let currentPage = null;
 
-  const data = child.val();
+      snapshot.forEach((child) => {
 
-  if (!currentPage || 
-      currentPage.find('.photo-wrapper').children().length >= 2) {
+        const data = child.val();
 
-    currentPage = $('<div class="page"></div>');
-    currentPage.append('<div class="photo-wrapper"></div>');
+        // Si no hay página o ya tiene 2 fotos → crear nueva
+        if (!currentPage ||
+            currentPage.find('.photo-wrapper img').length >= 2) {
 
-    book.turn('addPage', currentPage, pageNumber);
-    pageNumber++;
-  }
+          currentPage = $(`
+            <div class="page">
+              <div class="photo-wrapper"></div>
+            </div>
+          `);
 
-  addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+          const newTotal = book.turn('pages');
+          book.turn('addPage', currentPage, newTotal + 1);
+        }
 
-});
+        addMediaToPage(currentPage, data.url, data.timestamp, child.key);
 
-    // 🔥 ESTA PARTE ES NUEVA
-    if (!snapshot.exists()) {
+      });
 
-  const emptyPage = $('<div class="page"></div>');
-  emptyPage.append('<div class="photo-wrapper"></div>');
+      // Si no hay recuerdos → crear primera página de fotos
+      if (!snapshot.exists()) {
 
-  book.turn('addPage', emptyPage, 2);
+        const emptyPage = $(`
+          <div class="page">
+            <div class="photo-wrapper"></div>
+          </div>
+        `);
 
+        book.turn('addPage', emptyPage, 3);
+      }
+
+    });
 }
-    
                                                                 //           🩷document.getElementById("uploadBtn").addEventListener("click", function() {
 
     
@@ -727,6 +738,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
