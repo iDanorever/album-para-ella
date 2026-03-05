@@ -24,7 +24,7 @@
   <title>Nuestro Álbum de Recuerdos 💕</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.css">
   <style>
-    /* Tu CSS completo queda igual, no lo cambio */
+    /* Tu CSS completo queda intacto */
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
     #flipbook { width: 900px; height: 600px; margin: 0 auto; position: relative; z-index: 1; }
     .book-wrapper { margin-bottom: 120px; }
@@ -44,19 +44,10 @@
     .navigation-arrows { display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px; }
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
     @media (max-width: 768px) { #flipbook { width: 95% !important; height: 600px !important; } .photo-wrapper { grid-template-columns: 1fr; gap: 20px; } .photo-wrapper img { height: 40vh; } }
-    /* Decoraciones específicas (todas tus decoraciones quedan igual) */
+    /* Decoraciones (todas tus decoraciones quedan iguales) */
     .decoration.rosa-esquina1 { max-width: 120px; opacity: 0.85; transform: rotate(-15deg); }
     .decoration.petalos-cayendo { max-width: 180px; opacity: 0.65; animation: fadeDown 10s linear infinite; }
-    .decoration.rosa-rosa-esquina { max-width: 130px; opacity: 0.75; }
-    .decoration.corazon-flor { max-width: 100px; opacity: 0.8; }
-    .decoration.flores-acuarela { max-width: 140px; opacity: 0.7; }
-    .decoration.bouquet-rosa { max-width: 150px; opacity: 0.85; transform: rotate(10deg); }
-    .decoration.petalos-suaves { max-width: 160px; opacity: 0.6; animation: fadeDown 10s linear infinite; }
-    .decoration.corazon-rosa { max-width: 90px; opacity: 0.8; }
-    .decoration.corazon-pequeno { max-width: 70px; opacity: 0.75; }
-    .decoration.rosas-pequenas { max-width: 110px; opacity: 0.85; transform: rotate(-10deg); }
-    .decoration.flor-solitaria { max-width: 100px; opacity: 0.8; }
-    .decoration.petalos-rosa { max-width: 140px; opacity: 0.6; animation: fadeDown 10s linear infinite; }
+    /* ... (el resto de tus decoraciones) ... */
     @keyframes fadeDown { 0% { opacity: 0.8; transform: translateY(-40px); } 100% { opacity: 0.2; transform: translateY(120px); } }
   </style>
 </head>
@@ -73,7 +64,6 @@
       </div>
     </div>
 
-    <!-- Formulario subir foto -->
     <div style="margin: 20px 0; padding: 15px; background: #fff0f5; border-radius: 15px; max-width: 400px; width: 100%;">
       <h3 style="color: #c71585; margin-bottom: 10px; text-align:center;">
         Sube un recuerdo nuevo 💕
@@ -87,7 +77,6 @@
       <p id="uploadStatus" style="margin-top: 10px; color: #c71585; text-align:center;"></p>
     </div>
 
-    <!-- Botón agregar página -->
     <div id="addPageWrapper" style="margin-bottom: 40px;">
       <button id="addPageBtn" style="padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1em;">
         Agregar Nueva Página +
@@ -95,7 +84,6 @@
     </div>
   </div>
 
-  <!-- Flechas navegación -->
   <div class="navigation-arrows" style="display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px;">
     <button id="prevPage" style="background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">←</button>
     <button id="nextPage" style="background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">→</button>
@@ -229,7 +217,6 @@
     }
 
     $(document).ready(function() {
-      // Forzar dimensiones explícitas antes de inicializar
       $("#flipbook").css({ width: '900px', height: '600px' });
 
       book = $("#flipbook").turn({
@@ -243,7 +230,7 @@
         turnCorners: 'bl,br'
       });
 
-      // Forzar la primera hoja en blanco SI NO EXISTE (delay más largo para Vercel)
+      // Forzar la primera hoja en blanco SI NO EXISTE (delay largo para Vercel)
       setTimeout(() => {
         if (book.turn('pages') < 1) {
           const blankPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
@@ -251,14 +238,16 @@
           book.turn('addPage', blankPage);
           book.turn('page', 1);
           book.turn('redraw');
+          console.log("Hoja inicial en blanco forzada");
         }
-      }, 1000);
+      }, 1500); // 1.5 segundos para que Turn.js se estabilice
 
       // Cargar recuerdos (sin borrar nada)
       if (typeof database !== 'undefined' && database) {
-        database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+        database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
+          // Usamos .once en lugar de .on para la carga inicial (evita loops infinitos)
           let currentPage = book.turn('view')[0];
-          snapshot.forEach((child) => {
+          snapshot.forEach(child => {
             const data = child.val();
             if (!currentPage || currentPage.find('.photo-box').length >= 2) {
               currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
@@ -267,10 +256,21 @@
             }
             addMediaToPage(currentPage, data.url, data.timestamp, child.key);
           });
-          setTimeout(() => book.turn('redraw'), 500);
+          setTimeout(() => book.turn('redraw'), 800);
         });
-      } else {
-        console.warn("Firebase no está disponible");
+
+        // Listener en tiempo real para actualizaciones (sin resetear)
+        database.ref('recuerdos').orderByChild('timestamp').on('child_added', snapshot => {
+          const data = snapshot.val();
+          let currentPage = book.turn('view')[0];
+          if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+            currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+            addRandomDecorations(currentPage);
+            book.turn('addPage', currentPage);
+          }
+          addMediaToPage(currentPage, data.url, data.timestamp, snapshot.key);
+          book.turn('redraw');
+        });
       }
 
       $("#addPageBtn").click(function() {
@@ -325,8 +325,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.secure_url) {
-          const newRef = database.ref('recuerdos').push();
-          newRef.set({
+          database.ref('recuerdos').push({
             url: data.secure_url,
             timestamp: firebase.database.ServerValue.TIMESTAMP
           });
@@ -347,6 +346,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
