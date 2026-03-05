@@ -192,14 +192,18 @@
         setTimeout(() => book.turn('next'), 600);
       }
       return true;
-    }$(document).ready(function() {
-  // Forzar dimensiones FIJAS antes de inicializar Turn.js (muy importante en Vercel)
+      }
+    
+    $(document).ready(function() {
+  // Forzar dimensiones y visibilidad ANTES de inicializar
   $("#flipbook").css({
     width: '900px',
     height: '600px',
-    visibility: 'visible' // Evita que quede oculto al inicio
+    visibility: 'visible',
+    display: 'block'
   });
 
+  // Inicializar Turn.js con opciones más estables para Vercel
   book = $("#flipbook").turn({
     width: 900,
     height: 600,
@@ -208,25 +212,29 @@
     autoCenter: true,
     duration: 1200,
     display: 'double',
-    turnCorners: 'bl,br'
+    turnCorners: 'bl,br',
+    acceleration: true, // Ayuda en render inicial
+    when: {
+      turning: function(e, page) { book.turn('redraw'); },
+      turned: function(e, page) { book.turn('redraw'); }
+    }
   });
 
-  // Crear y forzar la primera hoja en blanco INMEDIATAMENTE (sin esperar Firebase)
-  const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-  addRandomDecorations(firstPage);
-  book.turn('addPage', firstPage);
+  // Crear la hoja inicial en blanco INMEDIATAMENTE (sin esperar nada)
+  const blankPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+  addRandomDecorations(blankPage);
+  book.turn('addPage', blankPage);
   book.turn('page', 1);
   book.turn('redraw');
 
-  // Esperar un poco más y refrescar vista (para que se vea estable)
+  // Reforzar después de 1 segundo (por si acaso)
   setTimeout(() => {
     book.turn('redraw');
     book.turn('page', 1);
-  }, 800);
+  }, 1000);
 
-  // Cargar recuerdos (solo agregar, nunca borrar ni resetear)
+  // Cargar recuerdos (solo agregar fotos, nunca borrar)
   if (typeof database !== 'undefined' && database) {
-    // Carga inicial única (evita loops)
     database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
       let currentPage = book.turn('view')[0];
       snapshot.forEach(child => {
@@ -240,21 +248,9 @@
       });
       book.turn('redraw');
     });
-
-    // Actualizaciones en tiempo real (solo nuevas fotos)
-    database.ref('recuerdos').on('child_added', snapshot => {
-      const data = snapshot.val();
-      let currentPage = book.turn('view')[0];
-      if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-        currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-        addRandomDecorations(currentPage);
-        book.turn('addPage', currentPage);
-      }
-      addMediaToPage(currentPage, data.url, data.timestamp, snapshot.key);
-      book.turn('redraw');
-    });
   }
 
+  // Botón agregar página
   $("#addPageBtn").click(function() {
     const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
     addRandomDecorations(newPage);
@@ -266,22 +262,19 @@
     }, 500);
   });
 
+  // Resto de tu código (resize, touch, flechas, etc.) queda igual
   $(window).resize(function() {
     book.turn('size', $("#flipbook").width(), $("#flipbook").height());
   });
-
   if ('ontouchstart' in window) {
     book.turn('options', { acceleration: true, shadows: false });
   }
-
   document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
   document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
-
   $("#flipbook").bind("turned", function(event, page) {
     document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
     document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
   });
-
   console.log("Flipbook inicializado");
 });
 
@@ -308,6 +301,7 @@
   </script>
 </body>
 </html>
+
 
 
 
