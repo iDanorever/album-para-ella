@@ -606,6 +606,7 @@ if (typeof database !== 'undefined' && database) {
     }
 
     let currentPage = null;
+let pageNumber = 2;
 
 snapshot.forEach((child) => {
 
@@ -616,8 +617,9 @@ snapshot.forEach((child) => {
 
     currentPage = $('<div class="page"></div>');
     currentPage.append('<div class="photo-wrapper"></div>');
-    addRandomDecorations(currentPage);
-    book.turn('addPage', currentPage);
+
+    book.turn('addPage', currentPage, pageNumber);
+    pageNumber++;
   }
 
   addMediaToPage(currentPage, data.url, data.timestamp, child.key);
@@ -687,6 +689,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
