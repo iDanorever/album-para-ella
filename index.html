@@ -582,39 +582,40 @@ $(window).resize(function () {
 if (typeof database !== 'undefined' && database) {
 
   database.ref('recuerdos')
-    .orderByChild('timestamp')
-    .on('value', (snapshot) => {
+  .orderByChild('timestamp')
+  .on('value', (snapshot) => {
 
-      // borrar páginas
-      const totalPages = book.turn('pages');
-      for (let i = totalPages; i > 1; i--) {
-        book.turn('removePage', i);
+    const totalPages = book.turn('pages');
+    for (let i = totalPages; i > 1; i--) {
+      book.turn('removePage', i);
+    }
+
+    let currentPage = null;
+
+    snapshot.forEach((child) => {
+      const data = child.val();
+
+      if (!currentPage || 
+          !currentPage.find('.photo-wrapper').length || 
+          currentPage.find('.photo-wrapper').children().length >= 2) {
+
+        currentPage = $('<div class="page"></div>');
+        addRandomDecorations(currentPage);
+        book.turn('addPage', currentPage);
       }
 
-      let currentPage = null;
-
-      snapshot.forEach((child) => {
-        const data = child.val();
-
-        if (!currentPage || 
-            !currentPage.find('.photo-wrapper').length || 
-            currentPage.find('.photo-wrapper').children().length >= 2) {
-
-          currentPage = $('<div class="page"></div>');
-          addRandomDecorations(currentPage);
-          book.turn('addPage', currentPage);
-        }
-
-        addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-      });
-
-      setTimeout(() => book.turn('redraw'), 400);
-
+      addMediaToPage(currentPage, data.url, data.timestamp, child.key);
     });
 
-} else {
-  console.warn("Firebase no está disponible");
-} 
+    // 🔥 ESTA PARTE ES NUEVA
+    if (!snapshot.exists()) {
+      const emptyPage = $('<div class="page"></div>');
+      addRandomDecorations(emptyPage);
+      book.turn('addPage', emptyPage);
+    }
+
+    setTimeout(() => book.turn('redraw'), 400);
+});
     
                                                                 //           🩷document.getElementById("uploadBtn").addEventListener("click", function() {
 
@@ -669,6 +670,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
