@@ -360,34 +360,38 @@
     });
 
     // Cargar recuerdos sin borrar la hoja derecha inicial
-    if (typeof database !== 'undefined' && database) {
-      database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
-        // No borrar páginas — solo agregar nuevas si hay recuerdos
-        let currentPage = book.turn('view')[1]; // Hoja derecha
-        snapshot.forEach((child) => {
-          const data = child.val();
-          if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-            currentPage = $('<div class="page"></div>');
-            addRandomDecorations(currentPage);
-            book.turn('addPage', currentPage);
-          }
-          addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-        });
-        setTimeout(() => book.turn('redraw'), 300);
-      });
-    }
-
-    $("#addPageBtn").click(function() {
-      const newPage = $('<div class="page"></div>');
-      addRandomDecorations(newPage);
-      const currentPages = book.turn('pages');
-      book.turn('addPage', newPage, currentPages + 1);
-      // Forzar volteo para mostrar la nueva en el lado derecho
-      setTimeout(() => {
-        book.turn('page', currentPages + 1);
-        book.turn('redraw');
-      }, 100);
+   // Cargar recuerdos guardados (sin borrar la hoja derecha inicial)
+if (typeof database !== 'undefined' && database) {
+  database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+    // NO borrar páginas automáticamente — solo agregar nuevas si hay recuerdos
+    let currentPage = book.turn('view')[1]; // Hoja derecha existente
+    snapshot.forEach((child) => {
+      const data = child.val();
+      if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+        currentPage = $('<div class="page"></div>');
+        addRandomDecorations(currentPage);
+        book.turn('addPage', currentPage);
+      }
+      addMediaToPage(currentPage, data.url, data.timestamp, child.key);
     });
+    setTimeout(() => book.turn('redraw'), 300);
+  });
+} else {
+  console.warn("Firebase no está disponible, no se cargarán recuerdos");
+}
+
+// Botón agregar página (fuerza mostrar en lado derecho)
+$("#addPageBtn").click(function() {
+  const newPage = $('<div class="page"></div>');
+  addRandomDecorations(newPage);
+  const currentPages = book.turn('pages');
+  book.turn('addPage', newPage, currentPages + 1);
+  // Forzar que la vista vaya a la nueva página (lado derecho)
+  setTimeout(() => {
+    book.turn('page', currentPages + 1);
+    book.turn('redraw');
+  }, 100);
+});
 
     $(window).resize(function() {
       book.turn('size', $("#flipbook").width(), $("#flipbook").height());
@@ -449,6 +453,7 @@
     });
   });
 </script>
+
 
 
 
