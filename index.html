@@ -55,8 +55,9 @@
   height: 90%;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
+  padding: 20px 0;
 }
 
 .photo-wrapper img {
@@ -425,7 +426,7 @@ function addMediaToPage(page, url, timestamp = null, key = null) {
 
   // Si no existe el contenedor, lo creamos
   if (container.length === 0) {
-    container = $('<div class="photo-wrapper"></div>').css({
+   container = $('<div class="photo-wrapper"></div>');
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       gap: '15px',
@@ -447,13 +448,13 @@ function addMediaToPage(page, url, timestamp = null, key = null) {
     textAlign: 'center'
   });
 
-  const img = $('<img>').attr('src', url).css({
-    width: '100%',
-    maxHeight: '300px',
-    objectFit: 'cover',
-    borderRadius: '10px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-  });
+ const img = $('<img>').attr('src', url).css({
+  width: '85%',
+  height: '45%',
+  objectFit: 'cover',
+  borderRadius: '10px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+});
 
   photoBox.append(img);
 
@@ -688,6 +689,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
