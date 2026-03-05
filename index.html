@@ -359,15 +359,11 @@
       turnCorners: 'bl,br'
     });
 
-    // Cargar recuerdos guardados
-   // Cargar recuerdos guardados (solo si Firebase está disponible)
+// Cargar recuerdos guardados (sin borrar páginas existentes)
 if (typeof database !== 'undefined' && database) {
   database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
-    
-    // NO BORRAR páginas si no hay recuerdos (mantiene la hoja derecha inicial)
-    // while (book.turn('pages') > 1) { book.turn('removePage', book.turn('pages')); } ← Comentado
-
-    let currentPage = book.turn('view')[1]; // Usa la hoja derecha existente si ya está
+    // NO borrar páginas automáticamente — solo agregar nuevas si hay recuerdos
+    let currentPage = book.turn('view')[1]; // Usa la hoja derecha si ya existe
     if (!currentPage) {
       currentPage = $('<div class="page"></div>');
       addRandomDecorations(currentPage);
@@ -462,6 +458,7 @@ if (typeof database !== 'undefined' && database) {
     });
   });
 </script>
+
 
 
 
