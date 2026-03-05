@@ -360,22 +360,36 @@
     });
 
     // Cargar recuerdos guardados
-    if (typeof database !== 'undefined' && database) {
-      database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
-        while (book.turn('pages') > 2) {
-          book.turn('removePage', book.turn('pages'));
-        }
-        snapshot.forEach((child) => {
-          const data = child.val();
-          const newPage = $('<div class="page"></div>');
-          addRandomDecorations(newPage);
-          addMediaToPage(newPage, data.url, data.timestamp, child.key);
-          book.turn('addPage', newPage);
-        });
-        setTimeout(() => book.turn('redraw'), 300);
-      });
+   // Cargar recuerdos guardados (solo si Firebase está disponible)
+if (typeof database !== 'undefined' && database) {
+  database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+    
+    // NO BORRAR páginas si no hay recuerdos (mantiene la hoja derecha inicial)
+    // while (book.turn('pages') > 1) { book.turn('removePage', book.turn('pages')); } ← Comentado
+
+    let currentPage = book.turn('view')[1]; // Usa la hoja derecha existente si ya está
+    if (!currentPage) {
+      currentPage = $('<div class="page"></div>');
+      addRandomDecorations(currentPage);
+      book.turn('addPage', currentPage);
     }
 
+    snapshot.forEach((child) => {
+      const data = child.val();
+      if (currentPage.find('.photo-box').length >= 2) {
+        currentPage = $('<div class="page"></div>');
+        addRandomDecorations(currentPage);
+        book.turn('addPage', currentPage);
+      }
+      addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+    });
+
+    setTimeout(() => book.turn('redraw'), 300);
+  });
+} else {
+  console.warn("Firebase no está disponible, no se cargarán recuerdos");
+}
+    
     $("#addPageBtn").click(function() {
       const newPage = $('<div class="page"></div>');
       addRandomDecorations(newPage);
@@ -448,6 +462,7 @@
     });
   });
 </script>
+
 
 
 
