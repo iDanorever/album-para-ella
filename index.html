@@ -40,7 +40,7 @@
 #flipbook {
   width: 800px;
   height: 600px;
-  margin: 40px auto;
+  margin: 0 auto;
 }
 
 .page {
@@ -529,17 +529,16 @@ $(document).ready(function () {
   });
 
                                                                                           // BOTÓN AGREGAR,  $("#addPageBtn").click(function() {
-  $("#addPageBtn").click(function() {
-    const newPage = $('<div class="page"></div>');
-    addRandomDecorations(newPage);
+  $("#addPage").click(function() {
 
-    const totalPages = book.turn('pages');
-    book.turn('addPage', newPage, totalPages + 1);
+  const totalPages = book.turn('pages');
 
-    setTimeout(() => {
-      book.turn('next');
-    }, 300);
-  });
+  const newPage = $('<div class="page"></div>');
+  newPage.append('<div class="photo-wrapper"></div>');
+
+  book.turn('addPage', newPage, totalPages + 1);
+
+});
 
   // BOTÓN ELIMINAR
   $("#deletePageBtn").click(function() {
@@ -627,13 +626,13 @@ snapshot.forEach((child) => {
 
     // 🔥 ESTA PARTE ES NUEVA
     if (!snapshot.exists()) {
-      const emptyPage = $('<div class="page"></div>');
-      addRandomDecorations(emptyPage);
-      book.turn('addPage', emptyPage);
-    }
 
-    setTimeout(() => book.turn('redraw'), 400);
-});
+  const emptyPage = $('<div class="page"></div>');
+  emptyPage.append('<div class="photo-wrapper"></div>');
+
+  book.turn('addPage', emptyPage, 2);
+
+}
     
                                                                 //           🩷document.getElementById("uploadBtn").addEventListener("click", function() {
 
@@ -688,6 +687,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
