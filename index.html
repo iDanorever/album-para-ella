@@ -32,6 +32,10 @@
       text-align: center;
       overflow-x: hidden;
     }
+    #flipbook,
+    #flipbook * {
+      pointer-events: auto;
+    }
     #flipbook {
       width: 900px;
       height: 600px;
@@ -67,7 +71,7 @@
       height: 90%;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: '15px';
+      gap: 15px;
       padding: 30px;
       align-items: center;
     }
@@ -190,21 +194,7 @@
   <div class="main-container">
     <div class="book-wrapper">
       <div id="flipbook">
-        <!-- Portada fija (lado izquierdo) -->
-        <div class="page">
-          <div style="padding: 40px 20px; max-width: 70%; margin: 0 auto; text-align: center;">
-            <img src="images/portadanueva.jpg" alt="Portada" style="width: 100%; height: auto; border: 4px solid #ffcccc; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <p style="color: #c71585; font-size: 1.5em; margin-top: 25px; font-weight: bold; white-space: nowrap;">
-              Para ti, mi amor eterno 💖
-            </p>
-            <p style="color: #c71585; font-size: 1.1em; margin-top: 15px; line-height: 1.5; opacity: 0.9;">
-              Este es un Álbum para nosotros para poner imágenes de recuerdo.<br>
-              Para que cada vez que ocurra un evento especial entre los 2, lo pongamos aquí ♥
-            </p>
-          </div>
-        </div>
-
-        <!-- Hoja inicial vacía en el lado derecho -->
+        <!-- Hoja inicial en blanco (ya no hay portada) -->
         <div class="page">
           <div class="photo-wrapper"></div>
         </div>
@@ -339,88 +329,78 @@
       return true;
     }
 
-   $(document).ready(function() {
-  // Forzar dimensiones explícitas ANTES de inicializar Turn.js
-  $("#flipbook").css({
-    width: '900px',
-    height: '600px'
-  });
+    $(document).ready(function() {
+      // Forzar dimensiones antes de inicializar Turn.js
+      $("#flipbook").css({ width: '900px', height: '600px' });
 
-  book = $("#flipbook").turn({
-    width: 900,
-    height: 600,
-    elevation: 50,
-    gradients: true,
-    autoCenter: true,
-    duration: 1200,
-    display: 'double',
-    turnCorners: 'bl,br'
-  });
-
-  // Forzar hoja derecha inicial SI NO EXISTE (delay más fuerte para Vercel)
-  setTimeout(() => {
-    if (book.turn('pages') < 2) {
-      const rightPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-      addRandomDecorations(rightPage);
-      book.turn('addPage', rightPage);
-      book.turn('page', 2); // Forzar vista en página 2 (derecha)
-      book.turn('redraw');
-      console.log("Hoja derecha forzada y visible");
-    }
-  }, 800); // 800ms — da tiempo a Turn.js en Vercel
-
-  // Cargar recuerdos (sin borrar nada, delay extra al final)
-  if (typeof database !== 'undefined' && database) {
-    database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
-      let currentPage = book.turn('view')[1];
-      snapshot.forEach((child) => {
-        const data = child.val();
-        if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-          currentPage = $('<div class="page"></div>');
-          addRandomDecorations(currentPage);
-          book.turn('addPage', currentPage);
-        }
-        addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+      book = $("#flipbook").turn({
+        width: 900,
+        height: 600,
+        elevation: 50,
+        gradients: true,
+        autoCenter: true,
+        duration: 1200,
+        display: 'double',
+        turnCorners: 'bl,br'
       });
-      // Redraw más fuerte y delay extra
+
+      // Forzar hoja derecha inicial si no existe
       setTimeout(() => {
-        book.turn('redraw');
-        book.turn('page', book.turn('page')); // Recálculo de vista
+        if (book.turn('pages') < 2) {
+          const rightPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+          addRandomDecorations(rightPage);
+          book.turn('addPage', rightPage);
+          book.turn('page', 2);
+          book.turn('redraw');
+        }
       }, 800);
+
+      // Cargar recuerdos (sin borrar nada)
+      if (typeof database !== 'undefined' && database) {
+        database.ref('recuerdos').orderByChild('timestamp').on('value', (snapshot) => {
+          let currentPage = book.turn('view')[1];
+          snapshot.forEach((child) => {
+            const data = child.val();
+            if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+              currentPage = $('<div class="page"></div>');
+              addRandomDecorations(currentPage);
+              book.turn('addPage', currentPage);
+            }
+            addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+          });
+          setTimeout(() => book.turn('redraw'), 300);
+        });
+      }
+
+      $("#addPageBtn").click(function() {
+        const newPage = $('<div class="page"></div>');
+        addRandomDecorations(newPage);
+        const currentPages = book.turn('pages');
+        book.turn('addPage', newPage, currentPages + 1);
+        setTimeout(() => {
+          book.turn('page', currentPages + 1);
+          book.turn('redraw');
+        }, 300);
+      });
+
+      $(window).resize(function() {
+        book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+      });
+
+      if ('ontouchstart' in window) {
+        book.turn('options', { acceleration: true, shadows: false });
+      }
+
+      document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
+      document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+
+      $("#flipbook").bind("turned", function(event, page) {
+        document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+        document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+      });
+
+      console.log("Flipbook inicializado");
     });
-  } else {
-    console.warn("Firebase no está disponible");
-  }
-
-  $("#addPageBtn").click(function() {
-    const newPage = $('<div class="page"></div>');
-    addRandomDecorations(newPage);
-    const currentPages = book.turn('pages');
-    book.turn('addPage', newPage, currentPages + 1);
-    setTimeout(() => {
-      book.turn('page', currentPages + 1);
-      book.turn('redraw');
-    }, 300);
-  });
-
-  $(window).resize(function() {
-    book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-  });
-
-  if ('ontouchstart' in window) {
-    book.turn('options', { acceleration: true, shadows: false });
-  }
-
-  document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
-  document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
-
-  $("#flipbook").bind("turned", function(event, page) {
-    document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
-    document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
-  });
-
-  console.log("Flipbook inicializado");
-});
 
     // Subir foto con Cloudinary
     document.getElementById('uploadBtn').addEventListener('click', function() {
@@ -465,6 +445,7 @@
   </script>
 </body>
 </html>
+
 
 
 
