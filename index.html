@@ -44,9 +44,27 @@
 }
 
 .page {
-  width: 400px;
-  height: 600px;
+  width: 500px;
+  height: 650px;
   background: white;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.photo-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  gap: 20px;
+}
+
+.photo-wrapper img {
+  width: 100%;
+  height: 48%;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
 
@@ -504,15 +522,13 @@ $("#flipbook").css({
 $(document).ready(function () {
 
   book = $("#flipbook").turn({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 650,
     autoCenter: true,
     display: "double",
-    page: 1,
-    gradients: true
   });
 
-  // BOTÓN AGREGAR
+                                                                                          // BOTÓN AGREGAR,  $("#addPageBtn").click(function() {
   $("#addPageBtn").click(function() {
     const newPage = $('<div class="page"></div>');
     addRandomDecorations(newPage);
@@ -592,20 +608,22 @@ if (typeof database !== 'undefined' && database) {
 
     let currentPage = null;
 
-    snapshot.forEach((child) => {
-      const data = child.val();
+snapshot.forEach((child) => {
 
-      if (!currentPage || 
-          !currentPage.find('.photo-wrapper').length || 
-          currentPage.find('.photo-wrapper').children().length >= 2) {
+  const data = child.val();
 
-        currentPage = $('<div class="page"></div>');
-        addRandomDecorations(currentPage);
-        book.turn('addPage', currentPage);
-      }
+  if (!currentPage || 
+      currentPage.find('.photo-wrapper').children().length >= 2) {
 
-      addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-    });
+    currentPage = $('<div class="page"></div>');
+    currentPage.append('<div class="photo-wrapper"></div>');
+    addRandomDecorations(currentPage);
+    book.turn('addPage', currentPage);
+  }
+
+  addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+
+});
 
     // 🔥 ESTA PARTE ES NUEVA
     if (!snapshot.exists()) {
@@ -670,6 +688,7 @@ if (typeof database !== 'undefined' && database) {
 </script>
 </body>
 </html>
+
 
 
 
