@@ -564,62 +564,29 @@ $(document).ready(function () {
 
                                                                                           // BOTÓN AGREGAR,  $("#addPageBtn").click(function() {
   $("#addPageBtn").click(function() {
+    
+const totalPages = book.turn('pages');
 
- const totalPages = book.turn('pages');
+const newPage = $(`
+  <div class="page">
+    <div class="photo-wrapper"></div>
+    <button class="delete-page-x">✖</button>
+  </div>
+`);
 
-let newPage;
+book.turn('addPage', newPage, totalPages + 1);
 
-// Si solo existen portada + vacía
-if (totalPages <= 2) {
+newPage.find('.delete-page-x').click(function () {
 
-  // Crear página PERFIL
-  const profilePage = $(`
-    <div class="page">
-      <div class="left-layout">
-        <img src="images/portadanueva.jpg" class="profile-pic">
-        <p class="description-text">
-          Nuestro primer recuerdo juntos 💕
-        </p>
-      </div>
-    </div>
-  `);
+  const currentPage = book.turn('page');
 
-  book.turn('addPage', profilePage, totalPages + 1);
+  if (confirm("¿Eliminar esta hoja con todas sus fotos? 💔")) {
 
-  // Crear página FOTOS
-  newPage = $(`
-    <div class="page">
-      <div class="photo-wrapper"></div>
-      <button class="delete-page-x">✖</button>
-    </div>
-  `);
+    const photos = $(book.turn('view')[0]).find('.photo-wrapper img');
 
-  book.turn('addPage', newPage, totalPages + 2);
-
-} else {
-
-  // Solo crear página FOTOS
-  newPage = $(`
-    <div class="page">
-      <div class="photo-wrapper"></div>
-      <button class="delete-page-x">✖</button>
-    </div>
-  `);
-
-  book.turn('addPage', newPage, totalPages + 1);
-}
-
-// Botón X funcional
-newPage.find('.delete-page-x').click(function() {
-
-  const pageIndex = book.turn('page');
-
-  if (confirm("¿Eliminar esta hoja con todos sus recuerdos? 💔")) {
-
-    const photos = $(book.turn('view')[1]).find('.photo-wrapper img');
-
-    photos.each(function() {
+    photos.each(function () {
       const imgSrc = $(this).attr('src');
+
       database.ref('recuerdos').once('value', snapshot => {
         snapshot.forEach(child => {
           if (child.val().url === imgSrc) {
@@ -629,7 +596,7 @@ newPage.find('.delete-page-x').click(function() {
       });
     });
 
-    book.turn('removePage', pageIndex);
+    book.turn('removePage', currentPage);
   }
 });
 
@@ -760,6 +727,7 @@ snapshot.forEach((child) => {
 </script>
 </body>
 </html>
+
 
 
 
