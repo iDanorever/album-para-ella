@@ -82,7 +82,124 @@
 <script>
   let book;
 
-  // Tus arrays y funciones (decorations, addRandomDecorations, addMediaToPage) quedan iguales
+  const decorations = [
+    'decorations/rosa-esquina1.png',
+    'decorations/petalos-cayendo.png',
+    'decorations/rosa-rosa-esquina.png',
+    'decorations/corazon-flor.png',
+    'decorations/flores-acuarela.png',
+    'decorations/bouquet-rosa.png',
+    'decorations/petalos-suaves.png',
+    'decorations/corazon-rosa.png',
+    'decorations/corazon-pequeno.png',
+    'decorations/rosas-pequenas.png',
+    'decorations/flor-solitaria.png',
+    'decorations/petalos-rosa.png'
+  ];
+
+  const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+  const decorPositions = {
+    'rosa-esquina1.png': ['top-left', 'top-right'],
+    'petalos-cayendo.png': ['bottom-left', 'bottom-right'],
+    'rosa-rosa-esquina.png': ['top-right', 'bottom-right'],
+    'corazon-flor.png': ['top-left', 'top-right'],
+    'flores-acuarela.png': ['bottom-left', 'bottom-right'],
+    'bouquet-rosa.png': ['bottom-left', 'bottom-right'],
+    'petalos-suaves.png': ['bottom-left', 'bottom-right'],
+    'corazon-rosa.png': ['top-left', 'top-right'],
+    'corazon-pequeno.png': ['bottom-left', 'bottom-right'],
+    'rosas-pequenas.png': ['bottom-left', 'bottom-right'],
+    'flor-solitaria.png': ['top-left', 'bottom-left'],
+    'petalos-rosa.png': ['bottom-left', 'bottom-right']
+  };
+
+  function addRandomDecorations(page) {
+    const numDeco = Math.floor(Math.random() * 2) + 2;
+    const usedPos = new Set();
+    for (let i = 0; i < numDeco; i++) {
+      let pos;
+      do {
+        pos = positions[Math.floor(Math.random() * positions.length)];
+      } while (usedPos.has(pos));
+      usedPos.add(pos);
+      const compatible = Object.keys(decorPositions).filter(deco => decorPositions[deco].includes(pos));
+      if (compatible.length === 0) continue;
+      const decoFile = 'decorations/' + compatible[Math.floor(Math.random() * compatible.length)];
+      const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
+      img.on('error', () => console.log("Error al cargar decoración:", decoFile));
+      page.append(img);
+    }
+  }
+
+  function addMediaToPage(page, url, timestamp = null, key = null) {
+    let container = page.find('.photo-wrapper');
+    if (container.length === 0) {
+      container = $('<div class="photo-wrapper"></div>').css({
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '15px',
+        padding: '30px',
+        height: '100%',
+        alignItems: 'center'
+      });
+      page.append(container);
+    }
+    if (container.children('.photo-box').length >= 2) {
+      alert("Esta hoja ya tiene 2 fotos 💕 Agrega una nueva página.");
+      return false;
+    }
+    const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
+    const img = $('<img>').attr('src', url).css({
+      width: '100%',
+      height: '45%',
+      objectFit: 'cover',
+      borderRadius: '10px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+    });
+    photoBox.append(img);
+    if (timestamp) {
+      const date = new Date(timestamp);
+      const formatted = date.toLocaleString('es-PE', { dateStyle: 'short' });
+      photoBox.append('<div class="timestamp">📅 ' + formatted + '</div>');
+    }
+    if (key) {
+      const controls = $('<div class="controls"></div>');
+      controls.append(
+        $('<button>📥</button>').click(() => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'recuerdo.jpg';
+          a.click();
+        }),
+        $('<button>🔄</button>').click(() => {
+          if (!confirm("¿Reemplazar esta imagen?")) return;
+          const input = $('<input type="file" accept="image/*">').on('change', e => {
+            const newFile = e.target.files[0];
+            if (!newFile) return;
+            const formData = new FormData();
+            formData.append('file', newFile);
+            formData.append('upload_preset', 'album_preset');
+            fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
+              .then(r => r.json())
+              .then(d => {
+                if (d.secure_url) database.ref('recuerdos/' + key).update({ url: d.secure_url });
+              });
+          });
+          input.click();
+        }),
+        $('<button>❌</button>').click(() => {
+          if (confirm("¿Borrar esta imagen?")) database.ref('recuerdos/' + key).remove();
+        })
+      );
+      photoBox.append(controls);
+    }
+    container.append(photoBox);
+    if (container.children('.photo-box').length === 2) {
+      setTimeout(() => book.turn('next'), 600);
+    }
+    return true;
+  }
 
   $(document).ready(function() {
     console.log("Iniciando Turn.js...");
@@ -108,7 +225,7 @@
 
     console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-    // Crear hoja inicial (sin redraw)
+    // Crear hoja inicial
     const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
     addRandomDecorations(firstPage);
     book.turn('addPage', firstPage);
@@ -116,10 +233,10 @@
 
     console.log("Hoja inicial agregada, páginas ahora:", book.turn('pages'));
 
-    // Reforzar vista sin usar redraw (usamos page + resize forzado)
+    // Reforzar vista
     setTimeout(() => {
       book.turn('page', 1);
-      $(window).trigger('resize'); // Fuerza redraw interno
+      $(window).trigger('resize');
     }, 500);
 
     setTimeout(() => {
@@ -141,7 +258,7 @@
             }
             addMediaToPage(currentPage, data.url, data.timestamp, child.key);
           });
-          book.turn('page', book.turn('page')); // Refresca vista actual
+          book.turn('page', book.turn('page'));
           $(window).trigger('resize');
           console.log("Fotos cargadas desde Firebase");
         });
@@ -175,9 +292,11 @@
       document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
       document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
     });
+
+    console.log("Script completo cargado");
   });
 
-  // Subir foto (tu código actual)
+  // Subir foto
   document.getElementById('uploadBtn').addEventListener('click', function() {
     const file = document.getElementById('fileInput').files[0];
     const status = document.getElementById('uploadStatus');
@@ -200,5 +319,6 @@
 </script>
 </body>
 </html>
+
 
 
