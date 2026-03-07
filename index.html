@@ -50,7 +50,7 @@
 
   <div class="book-wrapper">
     <div id="flipbook">
-      <!-- Hoja inicial izquierda (en HTML directo para que no desaparezca) -->
+      <!-- Hoja inicial izquierda (en HTML directo para que no desaparezca nunca) -->
       <div class="page">
         <div class="photo-wrapper"></div>
       </div>
@@ -219,16 +219,18 @@
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-      // Reforzar la vista inicial varias veces
+      // Reforzar la vista inicial
       book.turn('page', 1);
       book.turn('redraw');
 
-      setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 500);
+      // Reforzar varias veces para evitar que desaparezca
+      setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 300);
+      setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 800);
       setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 1500);
 
       console.log("Hoja inicial reforzada");
 
-      // Cargar recuerdos solo después de que la hoja esté visible
+      // Cargar recuerdos (solo agregar)
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
@@ -277,7 +279,6 @@
       });
     });
 
-    // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
       const status = document.getElementById('uploadStatus');
@@ -300,6 +301,7 @@
   </script>
 </body>
 </html>
+
 
 
 
