@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.css">
   <style>
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
+    .main-container { max-width: 1000px; margin: 0 auto; }
     #flipbook { width: 900px; height: 600px; margin: 0 auto; position: relative; z-index: 1; }
     @media (min-width: 768px) { #flipbook { width: 90vw; max-width: 1000px; height: 70vh; } }
     .page { width: 50% !important; height: 100% !important; background: white; background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px), linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px); background-size: 100% 40px, 100% 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: visible !important; }
@@ -42,29 +43,34 @@
     #addPageBtn { padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; pointer-events: auto; z-index: 9999; }
     .navigation-arrows { display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px; pointer-events: auto; }
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
+    .form-container, #addPageWrapper { max-width: 400px; margin: 20px auto; text-align: center; }
     @media (max-width: 768px) { #flipbook { width: 95% !important; height: 600px !important; } .photo-wrapper { grid-template-columns: 1fr; } .photo-wrapper img { height: 40vh; } }
   </style>
 </head>
 <body>
   <h1 style="color: #c71585; font-size: 1.8em; margin: 10px;">Nuestros Momentos Eternos 💖</h1>
 
-  <div class="book-wrapper">
-    <div id="flipbook">
-      <!-- Hoja inicial izquierda (en HTML directo para que no desaparezca nunca) -->
-      <div class="page">
-        <div class="photo-wrapper"></div>
+  <div class="main-container">
+    <div class="book-wrapper">
+      <div id="flipbook">
+        <!-- Hoja inicial izquierda (en HTML directo para que no desaparezca) -->
+        <div class="page">
+          <div class="photo-wrapper"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div style="margin: 20px 0; padding: 15px; background: #fff0f5; border-radius: 15px; max-width: 400px; width: 100%;">
-    <h3 style="color: #c71585;">Sube un recuerdo nuevo 💕</h3>
-    <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px; width: 100%;">
-    <button id="uploadBtn" style="padding: 10px 25px; background: #ff69b4; color: white; border: none; border-radius: 25px; cursor: pointer;">Subir Foto</button>
-    <p id="uploadStatus" style="margin-top: 10px; color: #c71585;"></p>
-  </div>
+    <div class="form-container">
+      <h3 style="color: #c71585;">Sube un recuerdo nuevo 💕</h3>
+      <input type="file" id="fileInput" accept="image/*" style="margin-bottom: 10px; width: 100%;">
+      <button id="uploadBtn" style="padding: 10px 25px; background: #ff69b4; color: white; border: none; border-radius: 25px; cursor: pointer;">Subir Foto</button>
+      <p id="uploadStatus" style="margin-top: 10px; color: #c71585;"></p>
+    </div>
 
-  <button id="addPageBtn">Agregar Nueva Página +</button>
+    <div id="addPageWrapper">
+      <button id="addPageBtn">Agregar Nueva Página +</button>
+    </div>
+  </div>
 
   <div class="navigation-arrows">
     <button id="prevPage">←</button>
@@ -219,14 +225,13 @@
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-      // Reforzar la vista inicial
+      // Reforzar la vista inicial varias veces para evitar que desaparezca
       book.turn('page', 1);
       book.turn('redraw');
 
-      // Reforzar varias veces para evitar que desaparezca
       setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 300);
       setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 800);
-      setTimeout(() => { book.turn('redraw'); book.turn('page', 1); }, 1500);
+      setTimeout(() => { book.turn('redraw'); book.turn('page', 1); $(window).trigger('resize'); }, 1500);
 
       console.log("Hoja inicial reforzada");
 
@@ -301,23 +306,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
