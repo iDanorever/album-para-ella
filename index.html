@@ -33,20 +33,21 @@
       position: relative !important;
       z-index: 1 !important;
       overflow: hidden !important;
-      background: #f8f8f8 !important; /* Fondo gris temporal para ver si el contenedor está vivo */
+      background: #f8f8f8 !important;
     }
     .book-wrapper { width: 900px !important; margin: 0 auto !important; }
     @media (min-width: 768px) { #flipbook { width: 90vw !important; max-width: 1000px !important; height: 70vh !important; } }
     .page {
       width: 50% !important;
       height: 100% !important;
-      background: white;
+      background: white !important;
       background-image: 
-        linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px),
-        linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px);
-      background-size: 100% 40px, 100% 100%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      position: relative;
+        linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important,
+        linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px) !important;
+      background-size: 100% 40px, 100% 100% !important;
+      background-repeat: repeat !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+      position: relative !important;
       overflow: hidden !important;
     }
     .photo-wrapper { width: 90%; height: 90%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 30px; align-items: center; }
@@ -73,7 +74,6 @@
   <div class="main-container">
     <div class="book-wrapper">
       <div id="flipbook">
-        <!-- Hoja inicial izquierda en HTML directo (para que no desaparezca nunca) -->
         <div class="page">
           <div class="photo-wrapper"></div>
         </div>
@@ -249,17 +249,17 @@
       const refreshView = () => {
         book.turn('page', 1);
         $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight; // Forzar reflow
+        $("#flipbook")[0].offsetHeight;
       };
 
       refreshView();
       setTimeout(refreshView, 300);
       setTimeout(refreshView, 800);
       setTimeout(refreshView, 1500);
+      setTimeout(refreshView, 2500);
 
       console.log("Hoja inicial reforzada");
 
-      // Cargar recuerdos
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
@@ -276,7 +276,7 @@
             refreshView();
             console.log("Fotos cargadas desde Firebase");
           });
-        }, 2000);
+        }, 3000);
       }
 
       $("#addPageBtn").click(function() {
@@ -308,7 +308,6 @@
       });
     });
 
-    // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
       const status = document.getElementById('uploadStatus');
