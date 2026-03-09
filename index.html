@@ -72,17 +72,17 @@
       width: 90%; 
       height: 90%; 
       display: grid; 
-      grid-template-columns: 1fr;  /* UNA COLUMNA: una encima de la otra */
-      gap: 20px; 
+      grid-template-columns: 1fr;          /* CAMBIO: una columna → una encima de la otra */
+      gap: 25px; 
       padding: 30px; 
-      align-items: center; 
+      align-content: center; 
       position: relative; 
       z-index: 3; 
     }
     .photo-wrapper img { 
       width: 100%; 
-      max-height: 45%;  /* Limita altura para que quepan 2 */
-      object-fit: contain;  /* Muestra completa sin recortar ni deformar */
+      max-height: 42%;                     /* Ajuste para que quepan 2 cómodamente */
+      object-fit: contain;                 /* Muestra la foto completa, sin recortar ni deformar */
       border-radius: 10px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
       margin: 0 auto; 
@@ -146,11 +146,11 @@
       if (container.length === 0) {
         container = $('<div class="photo-wrapper"></div>').css({
           display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '20px',
+          gridTemplateColumns: '1fr',           // CAMBIO: una columna
+          gap: '25px',
           padding: '30px',
           height: '100%',
-          alignItems: 'center'
+          alignContent: 'center'
         });
         page.append(container);
       }
@@ -161,10 +161,12 @@
       const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
       const img = $('<img>').attr('src', url).css({
         width: '100%',
-        maxHeight: '45%',
-        objectFit: 'contain',
+        maxHeight: '42%',                       // Ajuste para caber 2 bien
+        objectFit: 'contain',                   // Foto completa sin recortar
         borderRadius: '10px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        margin: '0 auto',
+        display: 'block'
       });
       photoBox.append(img);
       if (timestamp) {
@@ -323,6 +325,7 @@
   </script>
 </body>
 </html>
+
 
 
 
