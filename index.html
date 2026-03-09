@@ -154,25 +154,7 @@
     };
 
     function addRandomDecorations(page) {
-      // Desactivadas temporalmente - descomenta cuando todo esté estable
-      console.log("Decoraciones desactivadas temporalmente");
-      /*
-      const numDeco = Math.floor(Math.random() * 2) + 2;
-      const usedPos = new Set();
-      for (let i = 0; i < numDeco; i++) {
-        let pos;
-        do {
-          pos = positions[Math.floor(Math.random() * positions.length)];
-        } while (usedPos.has(pos));
-        usedPos.add(pos);
-        const compatible = Object.keys(decorPositions).filter(deco => decorPositions[deco].includes(pos));
-        if (compatible.length === 0) continue;
-        const decoFile = 'decorations/' + compatible[Math.floor(Math.random() * compatible.length)];
-        const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
-        img.on('error', () => console.log("Error al cargar decoración:", decoFile));
-        page.append(img);
-      }
-      */
+      console.log("Decoraciones desactivadas temporalmente para depurar");
     }
 
     function addMediaToPage(page, url, timestamp = null, key = null) {
@@ -365,6 +347,7 @@
   </script>
 </body>
 </html>
+
 
 
 
