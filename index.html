@@ -94,6 +94,20 @@
     .controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; z-index: 20; }
     .controls button { background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 1.1em; }
     .timestamp { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); color: #c71585; font-size: 0.85em; background: rgba(255,255,255,0.6); padding: 4px 12px; border-radius: 20px; z-index: 10; }
+    .delete-page { 
+      position: absolute; 
+      top: 10px; 
+      right: 10px; 
+      background: #ff0000; 
+      color: white; 
+      border: none; 
+      border-radius: 50%; 
+      width: 24px; 
+      height: 24px; 
+      font-size: 14px; 
+      cursor: pointer; 
+      z-index: 30; 
+    }
     #addPageBtn { padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; pointer-events: auto; z-index: 9999; margin: 20px auto; display: block; }
     .navigation-arrows { display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px; pointer-events: auto; }
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
@@ -200,6 +214,19 @@
       return true;
     }
 
+    // Agregar botón X para borrar página
+    function addDeleteButton(page) {
+      if (page.index() === 0) return; // No borrar la primera página
+      const deleteBtn = $('<button class="delete-page">×</button>');
+      deleteBtn.click(function() {
+        if (confirm("¿Seguro que quieres borrar esta página y todas sus imágenes?")) {
+          page.remove();
+          // Aquí puedes agregar borrado de imágenes en Firebase si quieres (opcional)
+        }
+      });
+      page.append(deleteBtn);
+    }
+
     $("#addPageBtn").click(function() {
       const newPage = $(`
         <div class="page">
@@ -207,6 +234,7 @@
         </div>
       `);
       $("#album").append(newPage);
+      addDeleteButton(newPage);
       newPage[0].scrollIntoView({ behavior: 'smooth', inline: 'center' });
       currentPage = newPage;
     });
