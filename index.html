@@ -45,6 +45,7 @@
       overflow: hidden !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
+    /* Margen rojo + líneas azules reforzados para que se vean SIEMPRE */
     .page::before {
       content: "";
       position: absolute;
@@ -53,7 +54,7 @@
       width: 3px !important;
       height: 100% !important;
       background: #ff0000 !important;
-      z-index: 2 !important;
+      z-index: 10 !important; /* Subimos z-index para que no lo tape el canvas */
       pointer-events: none;
     }
     .page::after {
@@ -66,23 +67,23 @@
       background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 1.5px, transparent 1.5px) !important;
       background-size: 100% 40px !important;
       pointer-events: none;
-      z-index: 2 !important;
+      z-index: 10 !important; /* Subimos z-index para que las líneas se vean encima del canvas */
     }
     .photo-wrapper { 
       width: 90%; 
       height: 90%; 
       display: grid; 
-      grid-template-columns: 1fr;          /* CAMBIO: una columna → una encima de la otra */
+      grid-template-columns: 1fr; /* UNA COLUMNA: una encima de la otra */
       gap: 25px; 
       padding: 30px; 
       align-content: center; 
       position: relative; 
-      z-index: 3; 
+      z-index: 11 !important; /* Fotos por encima de líneas */
     }
     .photo-wrapper img { 
       width: 100%; 
-      max-height: 42%;                     /* Ajuste para que quepan 2 cómodamente */
-      object-fit: contain;                 /* Muestra la foto completa, sin recortar ni deformar */
+      max-height: 42%; 
+      object-fit: contain; /* Muestra completa sin recortar ni deformar */
       border-radius: 10px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
       margin: 0 auto; 
@@ -146,7 +147,7 @@
       if (container.length === 0) {
         container = $('<div class="photo-wrapper"></div>').css({
           display: 'grid',
-          gridTemplateColumns: '1fr',           // CAMBIO: una columna
+          gridTemplateColumns: '1fr',
           gap: '25px',
           padding: '30px',
           height: '100%',
@@ -161,8 +162,8 @@
       const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
       const img = $('<img>').attr('src', url).css({
         width: '100%',
-        maxHeight: '42%',                       // Ajuste para caber 2 bien
-        objectFit: 'contain',                   // Foto completa sin recortar
+        maxHeight: '42%',
+        objectFit: 'contain',
         borderRadius: '10px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         margin: '0 auto',
@@ -247,11 +248,22 @@
 
       console.log("Hoja inicial reforzada");
 
+      // Forzar repaint constante para que las líneas azules y margen rojo no desaparezcan
+      setInterval(() => {
+        if (book) {
+          book.turn('page', book.turn('page'));
+          $(window).trigger('resize');
+          $("#flipbook")[0].offsetHeight;
+        }
+      }, 2000);
+
       const observer = new MutationObserver(() => {
-        book.turn('page', book.turn('page'));
-        $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight;
-        console.log("Repaint forzado por cambio en DOM");
+        if (book) {
+          book.turn('page', book.turn('page'));
+          $(window).trigger('resize');
+          $("#flipbook")[0].offsetHeight;
+          console.log("Repaint forzado por cambio en DOM");
+        }
       });
       observer.observe($("#flipbook")[0], { childList: true, subtree: true });
 
@@ -319,12 +331,19 @@
             database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
             status.textContent = "¡Guardado! 💖";
             document.getElementById('fileInput').value = '';
+            // Forzar que las imágenes se muestren inmediatamente
+            setTimeout(() => {
+              let currentPage = book.turn('view')[0];
+              addMediaToPage(currentPage, data.secure_url);
+              refreshView();
+            }, 1000); // Delay pequeño para que Firebase sincronice
           }
         });
     });
   </script>
 </body>
 </html>
+
 
 
 
