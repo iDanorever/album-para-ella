@@ -26,9 +26,17 @@
   <style>
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
     .main-container { max-width: 1000px; margin: 0 auto; }
-    #flipbook { width: 900px; height: 600px; margin: 0 auto; position: relative; z-index: 1; }
+    #flipbook {
+      width: 900px;
+      height: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      overflow: hidden; /* Clave para que el canvas no se pierda */
+      background: #f8f8f8; /* Fondo gris temporal para ver el rectángulo */
+    }
     @media (min-width: 768px) { #flipbook { width: 90vw; max-width: 1000px; height: 70vh; } }
-    .page { width: 50% !important; height: 100% !important; background: white; background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px), linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px); background-size: 100% 40px, 100% 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: visible !important; }
+    .page { width: 50% !important; height: 100% !important; background: white; background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px), linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px); background-size: 100% 40px, 100% 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden !important; }
     .photo-wrapper { width: 90%; height: 90%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 30px; align-items: center; }
     .photo-wrapper img { width: 100%; height: 45%; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .photo-box { position: relative; }
@@ -45,8 +53,6 @@
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
     .form-container, #addPageWrapper { max-width: 400px; margin: 20px auto; text-align: center; }
     @media (max-width: 768px) { #flipbook { width: 95% !important; height: 600px !important; } .photo-wrapper { grid-template-columns: 1fr; } .photo-wrapper img { height: 40vh; } }
-
-    #flipbook { background: #f8f8f8; } /* Fondo gris temporal para ver el rectángulo */
   </style>
 </head>
 <body>
@@ -55,7 +61,7 @@
   <div class="main-container">
     <div class="book-wrapper">
       <div id="flipbook">
-        <!-- Hoja inicial izquierda (en HTML directo para que no desaparezca) -->
+        <!-- Hoja inicial izquierda en HTML directo -->
         <div class="page">
           <div class="photo-wrapper"></div>
         </div>
@@ -79,250 +85,242 @@
     <button id="nextPage">→</button>
   </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="js/turn.min.js"></script>
-<script>
-  let book;
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/turn.min.js"></script>
+  <script>
+    let book;
 
-  const decorations = [
-    'decorations/rosa-esquina1.png',
-    'decorations/petalos-cayendo.png',
-    'decorations/rosa-rosa-esquina.png',
-    'decorations/corazon-flor.png',
-    'decorations/flores-acuarela.png',
-    'decorations/bouquet-rosa.png',
-    'decorations/petalos-suaves.png',
-    'decorations/corazon-rosa.png',
-    'decorations/corazon-pequeno.png',
-    'decorations/rosas-pequenas.png',
-    'decorations/flor-solitaria.png',
-    'decorations/petalos-rosa.png'
-  ];
+    const decorations = [
+      'decorations/rosa-esquina1.png',
+      'decorations/petalos-cayendo.png',
+      'decorations/rosa-rosa-esquina.png',
+      'decorations/corazon-flor.png',
+      'decorations/flores-acuarela.png',
+      'decorations/bouquet-rosa.png',
+      'decorations/petalos-suaves.png',
+      'decorations/corazon-rosa.png',
+      'decorations/corazon-pequeno.png',
+      'decorations/rosas-pequenas.png',
+      'decorations/flor-solitaria.png',
+      'decorations/petalos-rosa.png'
+    ];
 
-  const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
 
-  const decorPositions = {
-    'rosa-esquina1.png': ['top-left', 'top-right'],
-    'petalos-cayendo.png': ['bottom-left', 'bottom-right'],
-    'rosa-rosa-esquina.png': ['top-right', 'bottom-right'],
-    'corazon-flor.png': ['top-left', 'top-right'],
-    'flores-acuarela.png': ['bottom-left', 'bottom-right'],
-    'bouquet-rosa.png': ['bottom-left', 'bottom-right'],
-    'petalos-suaves.png': ['bottom-left', 'bottom-right'],
-    'corazon-rosa.png': ['top-left', 'top-right'],
-    'corazon-pequeno.png': ['bottom-left', 'bottom-right'],
-    'rosas-pequenas.png': ['bottom-left', 'bottom-right'],
-    'flor-solitaria.png': ['top-left', 'bottom-left'],
-    'petalos-rosa.png': ['bottom-left', 'bottom-right']
-  };
+    const decorPositions = {
+      'rosa-esquina1.png': ['top-left', 'top-right'],
+      'petalos-cayendo.png': ['bottom-left', 'bottom-right'],
+      'rosa-rosa-esquina.png': ['top-right', 'bottom-right'],
+      'corazon-flor.png': ['top-left', 'top-right'],
+      'flores-acuarela.png': ['bottom-left', 'bottom-right'],
+      'bouquet-rosa.png': ['bottom-left', 'bottom-right'],
+      'petalos-suaves.png': ['bottom-left', 'bottom-right'],
+      'corazon-rosa.png': ['top-left', 'top-right'],
+      'corazon-pequeno.png': ['bottom-left', 'bottom-right'],
+      'rosas-pequenas.png': ['bottom-left', 'bottom-right'],
+      'flor-solitaria.png': ['top-left', 'bottom-left'],
+      'petalos-rosa.png': ['bottom-left', 'bottom-right']
+    };
 
-  function addRandomDecorations(page) {
-    const numDeco = Math.floor(Math.random() * 2) + 2;
-    const usedPos = new Set();
-    for (let i = 0; i < numDeco; i++) {
-      let pos;
-      do {
-        pos = positions[Math.floor(Math.random() * positions.length)];
-      } while (usedPos.has(pos));
-      usedPos.add(pos);
-      const compatible = Object.keys(decorPositions).filter(deco => decorPositions[deco].includes(pos));
-      if (compatible.length === 0) continue;
-      const decoFile = 'decorations/' + compatible[Math.floor(Math.random() * compatible.length)];
-      const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
-      img.on('error', () => console.log("Error al cargar decoración:", decoFile));
-      page.append(img);
+    function addRandomDecorations(page) {
+      const numDeco = Math.floor(Math.random() * 2) + 2;
+      const usedPos = new Set();
+      for (let i = 0; i < numDeco; i++) {
+        let pos;
+        do {
+          pos = positions[Math.floor(Math.random() * positions.length)];
+        } while (usedPos.has(pos));
+        usedPos.add(pos);
+        const compatible = Object.keys(decorPositions).filter(deco => decorPositions[deco].includes(pos));
+        if (compatible.length === 0) continue;
+        const decoFile = 'decorations/' + compatible[Math.floor(Math.random() * compatible.length)];
+        const img = $('<img>').addClass('decoration ' + pos).attr('src', decoFile);
+        img.on('error', () => console.log("Error al cargar decoración:", decoFile));
+        page.append(img);
+      }
     }
-  }
 
-  function addMediaToPage(page, url, timestamp = null, key = null) {
-    let container = page.find('.photo-wrapper');
-    if (container.length === 0) {
-      container = $('<div class="photo-wrapper"></div>').css({
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '15px',
-        padding: '30px',
-        height: '100%',
-        alignItems: 'center'
-      });
-      page.append(container);
-    }
-    if (container.children('.photo-box').length >= 2) {
-      alert("Esta hoja ya tiene 2 fotos 💕 Agrega una nueva página.");
-      return false;
-    }
-    const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
-    const img = $('<img>').attr('src', url).css({
-      width: '100%',
-      height: '45%',
-      objectFit: 'cover',
-      borderRadius: '10px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-    });
-    photoBox.append(img);
-    if (timestamp) {
-      const date = new Date(timestamp);
-      const formatted = date.toLocaleString('es-PE', { dateStyle: 'short' });
-      photoBox.append('<div class="timestamp">📅 ' + formatted + '</div>');
-    }
-    if (key) {
-      const controls = $('<div class="controls"></div>');
-      controls.append(
-        $('<button>📥</button>').click(() => {
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'recuerdo.jpg';
-          a.click();
-        }),
-        $('<button>🔄</button>').click(() => {
-          if (!confirm("¿Reemplazar esta imagen?")) return;
-          const input = $('<input type="file" accept="image/*">').on('change', e => {
-            const newFile = e.target.files[0];
-            if (!newFile) return;
-            const formData = new FormData();
-            formData.append('file', newFile);
-            formData.append('upload_preset', 'album_preset');
-            fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
-              .then(r => r.json())
-              .then(d => {
-                if (d.secure_url) database.ref('recuerdos/' + key).update({ url: d.secure_url });
-              });
-          });
-          input.click();
-        }),
-        $('<button>❌</button>').click(() => {
-          if (confirm("¿Borrar esta imagen?")) database.ref('recuerdos/' + key).remove();
-        })
-      );
-      photoBox.append(controls);
-    }
-    container.append(photoBox);
-    if (container.children('.photo-box').length === 2) {
-      setTimeout(() => book.turn('next'), 600);
-    }
-    return true;
-  }
-
-$(document).ready(function() {
-  console.log("Iniciando Turn.js...");
-
-  $("#flipbook").css({
-    width: '900px',
-    height: '600px',
-    visibility: 'visible',
-    display: 'block',
-    background: '#f8f8f8' // Fondo gris para ver si el contenedor está vivo
-  });
-
-  book = $("#flipbook").turn({
-    width: 900,
-    height: 600,
-    elevation: 50,
-    gradients: true,
-    autoCenter: true,
-    duration: 1200,
-    display: 'double',
-    turnCorners: 'bl,br',
-    acceleration: true
-  });
-
-  console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
-
-  // Crear y agregar la hoja inicial
-  const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-  addRandomDecorations(firstPage);
-  book.turn('addPage', firstPage);
-  book.turn('page', 1);
-
-  console.log("Hoja inicial agregada, páginas ahora:", book.turn('pages'));
-
-  // Reforzar vista (sin .redraw, usando resize forzado)
-  const refreshView = () => {
-    book.turn('page', 1);
-    $(window).trigger('resize');
-  };
-
-  refreshView();
-  setTimeout(refreshView, 300);
-  setTimeout(refreshView, 800);
-  setTimeout(refreshView, 1500);
-  setTimeout(refreshView, 2500);
-
-  console.log("Hoja reforzada");
-
-  // Cargar recuerdos
-  if (typeof database !== 'undefined' && database) {
-    setTimeout(() => {
-      database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
-        let currentPage = book.turn('view')[0];
-        snapshot.forEach(child => {
-          const data = child.val();
-          if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-            currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-            addRandomDecorations(currentPage);
-            book.turn('addPage', currentPage);
-          }
-          addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+    function addMediaToPage(page, url, timestamp = null, key = null) {
+      let container = page.find('.photo-wrapper');
+      if (container.length === 0) {
+        container = $('<div class="photo-wrapper"></div>').css({
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '15px',
+          padding: '30px',
+          height: '100%',
+          alignItems: 'center'
         });
-        refreshView();
-        console.log("Fotos cargadas desde Firebase");
+        page.append(container);
+      }
+      if (container.children('.photo-box').length >= 2) {
+        alert("Esta hoja ya tiene 2 fotos 💕 Agrega una nueva página.");
+        return false;
+      }
+      const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
+      const img = $('<img>').attr('src', url).css({
+        width: '100%',
+        height: '45%',
+        objectFit: 'cover',
+        borderRadius: '10px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
       });
-    }, 3000); // 3 segundos para dar tiempo al render inicial
-  }
+      photoBox.append(img);
+      if (timestamp) {
+        const date = new Date(timestamp);
+        const formatted = date.toLocaleString('es-PE', { dateStyle: 'short' });
+        photoBox.append('<div class="timestamp">📅 ' + formatted + '</div>');
+      }
+      if (key) {
+        const controls = $('<div class="controls"></div>');
+        controls.append(
+          $('<button>📥</button>').click(() => {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recuerdo.jpg';
+            a.click();
+          }),
+          $('<button>🔄</button>').click(() => {
+            if (!confirm("¿Reemplazar esta imagen?")) return;
+            const input = $('<input type="file" accept="image/*">').on('change', e => {
+              const newFile = e.target.files[0];
+              if (!newFile) return;
+              const formData = new FormData();
+              formData.append('file', newFile);
+              formData.append('upload_preset', 'album_preset');
+              fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(d => {
+                  if (d.secure_url) database.ref('recuerdos/' + key).update({ url: d.secure_url });
+                });
+            });
+            input.click();
+          }),
+          $('<button>❌</button>').click(() => {
+            if (confirm("¿Borrar esta imagen?")) database.ref('recuerdos/' + key).remove();
+          })
+        );
+        photoBox.append(controls);
+      }
+      container.append(photoBox);
+      if (container.children('.photo-box').length === 2) {
+        setTimeout(() => book.turn('next'), 600);
+      }
+      return true;
+    }
 
-  $("#addPageBtn").click(function() {
-    const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-    addRandomDecorations(newPage);
-    const currentPages = book.turn('pages');
-    book.turn('addPage', newPage, currentPages + 1);
-    setTimeout(() => {
-      book.turn('page', currentPages + 1);
-      $(window).trigger('resize');
-    }, 500);
-  });
+    $(document).ready(function() {
+      console.log("Iniciando Turn.js...");
 
-  $(window).resize(function() {
-    book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-    book.turn('page', book.turn('page'));
-  });
-
-  if ('ontouchstart' in window) {
-    book.turn('options', { acceleration: true, shadows: false });
-  }
-
-  document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
-  document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
-
-  $("#flipbook").bind("turned", function(event, page) {
-    document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
-    document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
-  });
-});
-  
-  
-  // Subir foto
-  document.getElementById('uploadBtn').addEventListener('click', function() {
-    const file = document.getElementById('fileInput').files[0];
-    const status = document.getElementById('uploadStatus');
-    if (!file) return status.textContent = "Elige una foto primero 💕";
-
-    status.textContent = "Procesando... 😊";
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'album_preset');
-    fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
-      .then(r => r.json())
-      .then(data => {
-        if (data.secure_url) {
-          database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
-          status.textContent = "¡Guardado! 💖";
-          document.getElementById('fileInput').value = '';
-        }
+      $("#flipbook").css({
+        width: '900px',
+        height: '600px',
+        visibility: 'visible',
+        display: 'block'
       });
-  });
-</script>
+
+      book = $("#flipbook").turn({
+        width: 900,
+        height: 600,
+        elevation: 50,
+        gradients: true,
+        autoCenter: true,
+        duration: 1200,
+        display: 'double',
+        turnCorners: 'bl,br',
+        acceleration: true
+      });
+
+      console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
+
+      // Reforzar la vista inicial
+      const refreshView = () => {
+        book.turn('page', 1);
+        $(window).trigger('resize');
+        $("#flipbook").css('height', '600px'); // Forzar repaint
+        $("#flipbook")[0].offsetHeight; // Truco para forzar reflow
+      };
+
+      refreshView();
+      setTimeout(refreshView, 300);
+      setTimeout(refreshView, 800);
+      setTimeout(refreshView, 1500);
+
+      console.log("Hoja inicial reforzada");
+
+      // Cargar recuerdos
+      if (typeof database !== 'undefined' && database) {
+        setTimeout(() => {
+          database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
+            let currentPage = book.turn('view')[0];
+            snapshot.forEach(child => {
+              const data = child.val();
+              if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+                currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+                addRandomDecorations(currentPage);
+                book.turn('addPage', currentPage);
+              }
+              addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+            });
+            refreshView();
+            console.log("Fotos cargadas desde Firebase");
+          });
+        }, 2000);
+      }
+
+      $("#addPageBtn").click(function() {
+        const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+        addRandomDecorations(newPage);
+        const currentPages = book.turn('pages');
+        book.turn('addPage', newPage, currentPages + 1);
+        setTimeout(() => {
+          book.turn('page', currentPages + 1);
+          refreshView();
+        }, 500);
+      });
+
+      $(window).resize(function() {
+        book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+        book.turn('page', book.turn('page'));
+      });
+
+      if ('ontouchstart' in window) {
+        book.turn('options', { acceleration: true, shadows: false });
+      }
+
+      document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
+      document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+
+      $("#flipbook").bind("turned", function(event, page) {
+        document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+        document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+      });
+    });
+
+    // Subir foto
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+      const file = document.getElementById('fileInput').files[0];
+      const status = document.getElementById('uploadStatus');
+      if (!file) return status.textContent = "Elige una foto primero 💕";
+
+      status.textContent = "Procesando... 😊";
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'album_preset');
+      fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+          if (data.secure_url) {
+            database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            status.textContent = "¡Guardado! 💖";
+            document.getElementById('fileInput').value = '';
+          }
+        });
+    });
+  </script>
 </body>
 </html>
+
 
 
 
