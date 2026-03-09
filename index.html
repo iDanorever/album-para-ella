@@ -22,7 +22,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nuestro Álbum de Recuerdos 💕</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.css">
   <style>
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
     .main-container { max-width: 1000px; margin: 0 auto; }
@@ -45,7 +45,7 @@
         linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important,
         linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px) !important;
       background-size: 100% 40px, 100% 100% !important;
-      background-attachment: fixed !important; /* Evita que se pierda el fondo al redraw */
+      background-attachment: fixed !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
       position: relative !important;
       overflow: hidden !important;
@@ -98,7 +98,7 @@
   </div>
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="js/turn.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
   <script>
     let book;
 
@@ -135,6 +135,9 @@
     };
 
     function addRandomDecorations(page) {
+      // Temporalmente desactivadas para depurar - descomenta cuando funcione
+      console.log("Decoraciones desactivadas temporalmente para depurar");
+      /*
       const numDeco = Math.floor(Math.random() * 2) + 2;
       const usedPos = new Set();
       for (let i = 0; i < numDeco; i++) {
@@ -150,6 +153,7 @@
         img.on('error', () => console.log("Error al cargar decoración:", decoFile));
         page.append(img);
       }
+      */
     }
 
     function addMediaToPage(page, url, timestamp = null, key = null) {
@@ -240,7 +244,8 @@
         duration: 1200,
         display: 'double',
         turnCorners: 'bl,br',
-        acceleration: true
+        acceleration: false,
+        shadows: false
       });
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
@@ -256,9 +261,23 @@
       setTimeout(refreshView, 300);
       setTimeout(refreshView, 800);
       setTimeout(refreshView, 1500);
-      setTimeout(refreshView, 2500);
 
       console.log("Hoja inicial reforzada");
+
+      // MutationObserver para forzar repaint cuando se agregan fotos o páginas
+      const observer = new MutationObserver(() => {
+        book.turn('page', book.turn('page'));
+        $(window).trigger('resize');
+        $("#flipbook")[0].offsetHeight;
+        console.log("Repaint forzado por cambio en DOM");
+      });
+      observer.observe($("#flipbook")[0], { childList: true, subtree: true });
+
+      // Intervalo de repaint cada 4 segundos (solo para depurar - coméntalo cuando funcione)
+      setInterval(() => {
+        refreshView();
+        console.log("Repaint periódico");
+      }, 4000);
 
       // Cargar recuerdos
       if (typeof database !== 'undefined' && database) {
@@ -297,7 +316,7 @@
       });
 
       if ('ontouchstart' in window) {
-        book.turn('options', { acceleration: true, shadows: false });
+        book.turn('options', { acceleration: false, shadows: false });
       }
 
       document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
@@ -309,6 +328,7 @@
       });
     });
 
+    // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
       const status = document.getElementById('uploadStatus');
@@ -331,4 +351,5 @@
   </script>
 </body>
 </html>
+
 
