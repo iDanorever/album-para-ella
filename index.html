@@ -41,16 +41,36 @@
       width: 50% !important;
       height: 100% !important;
       background: white !important;
-      background-image: 
-        linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important,
-        linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px) !important;
-      background-size: 100% 40px, 100% 100% !important;
-      background-attachment: fixed !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
       position: relative !important;
       overflow: hidden !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
-    .photo-wrapper { width: 90%; height: 90%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 30px; align-items: center; }
+    /* Margen rojo vertical a la izquierda en TODAS las páginas */
+    .page::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 43px !important;
+      height: 100% !important;
+      background: #ff0000 !important;
+      z-index: 2 !important;
+      pointer-events: none;
+    }
+    /* Líneas azules horizontales en TODAS las páginas */
+    .page::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100% !important;
+      height: 100% !important;
+      background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important;
+      background-size: 100% 40px !important;
+      pointer-events: none;
+      z-index: 2 !important;
+    }
+    .photo-wrapper { width: 90%; height: 90%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 30px; align-items: center; position: relative; z-index: 3; }
     .photo-wrapper img { width: 100%; height: 45%; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .photo-box { position: relative; }
     .controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; z-index: 20; }
@@ -135,8 +155,8 @@
     };
 
     function addRandomDecorations(page) {
-      // Temporalmente desactivadas para depurar - descomenta cuando funcione
-      console.log("Decoraciones desactivadas temporalmente para depurar");
+      // Temporalmente desactivadas para depurar - descomenta cuando todo esté estable
+      console.log("Decoraciones desactivadas temporalmente");
       /*
       const numDeco = Math.floor(Math.random() * 2) + 2;
       const usedPos = new Set();
@@ -250,7 +270,6 @@
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-      // Reforzar la vista inicial
       const refreshView = () => {
         book.turn('page', 1);
         $(window).trigger('resize');
@@ -264,7 +283,6 @@
 
       console.log("Hoja inicial reforzada");
 
-      // MutationObserver para forzar repaint cuando se agregan fotos o páginas
       const observer = new MutationObserver(() => {
         book.turn('page', book.turn('page'));
         $(window).trigger('resize');
@@ -273,13 +291,11 @@
       });
       observer.observe($("#flipbook")[0], { childList: true, subtree: true });
 
-      // Intervalo de repaint cada 4 segundos (solo para depurar - coméntalo cuando funcione)
       setInterval(() => {
         refreshView();
         console.log("Repaint periódico");
       }, 4000);
 
-      // Cargar recuerdos
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
@@ -328,7 +344,6 @@
       });
     });
 
-    // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
       const status = document.getElementById('uploadStatus');
@@ -351,5 +366,6 @@
   </script>
 </body>
 </html>
+
 
 
