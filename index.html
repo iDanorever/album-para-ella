@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
   <script>
     const firebaseConfig = {
@@ -16,46 +15,42 @@
       measurementId: "G-KZD92NNT5"
     };
     firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
     const database = firebase.database();
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nuestro Álbum de Recuerdos 💕</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/turn.js@4.1.0/turn.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/turn.js@4.1.0/turn.min.js"></script>
   <style>
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
     .main-container { max-width: 1000px; margin: 0 auto; }
-    #album {
-      width: 900px;
-      height: 600px;
-      margin: 0 auto;
-      background: #f8f8f8;
-      overflow-x: auto;
-      white-space: nowrap;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      scroll-behavior: smooth;
+    #flipbook {
+      width: 900px !important;
+      height: 600px !important;
+      margin: 0 auto !important;
+      position: relative !important;
+      z-index: 1 !important;
+      overflow: hidden !important;
     }
+    .book-wrapper { width: 900px !important; margin: 0 auto !important; }
     .page {
-      width: 50%;
-      height: 100%;
-      background: white;
-      display: inline-block;
-      vertical-align: top;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      width: 50% !important;
+      height: 100% !important;
+      background: white !important;
+      position: relative !important;
+      overflow: hidden !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
     .page::before {
       content: "";
       position: absolute;
       left: 0;
       top: 0;
-      width: 3px;
-      height: 100%;
-      background: #ff0000;
-      z-index: 2;
+      width: 3px !important;
+      height: 100% !important;
+      background: #ff0000 !important;
+      z-index: 10 !important;
       pointer-events: none;
     }
     .page::after {
@@ -63,12 +58,12 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 100%;
-      height: 100%;
-      background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #4a90e2 1px, #4a90e2 2px, transparent 2px);
-      background-size: 100% 40px;
+      width: 100% !important;
+      height: 100% !important;
+      background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #4a90e2 1px, #4a90e2 2px, transparent 2px) !important;
+      background-size: 100% 40px !important;
       pointer-events: none;
-      z-index: 2;
+      z-index: 10 !important;
     }
     .photo-wrapper { 
       width: 90%; 
@@ -79,7 +74,7 @@
       padding: 30px; 
       align-content: center; 
       position: relative; 
-      z-index: 3; 
+      z-index: 11 !important; 
     }
     .photo-wrapper img { 
       width: 100%; 
@@ -108,20 +103,23 @@
       cursor: pointer; 
       z-index: 30; 
     }
-    #addPageBtn { padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; pointer-events: auto; z-index: 9999; margin: 20px auto; display: block; }
+    #addPageBtn { padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; pointer-events: auto; z-index: 9999; }
     .navigation-arrows { display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px; pointer-events: auto; }
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
-    .form-container { max-width: 400px; margin: 20px auto; text-align: center; }
-    @media (max-width: 768px) { #album { width: 95%; height: 600px; } .photo-wrapper img { max-height: 35%; } }
+    .form-container, #addPageWrapper { max-width: 400px; margin: 20px auto; text-align: center; }
+    .error-message { color: red; font-weight: bold; margin: 20px; }
+    @media (max-width: 768px) { #flipbook { width: 95% !important; height: 600px !important; } .photo-wrapper img { max-height: 35%; } }
   </style>
 </head>
 <body>
   <h1 style="color: #c71585; font-size: 1.8em; margin: 10px;">Nuestros Momentos Eternos 💖</h1>
 
   <div class="main-container">
-    <div id="album">
-      <div class="page">
-        <div class="photo-wrapper"></div>
+    <div class="book-wrapper">
+      <div id="flipbook">
+        <div class="page">
+          <div class="photo-wrapper"></div>
+        </div>
       </div>
     </div>
 
@@ -142,9 +140,25 @@
     <button id="nextPage">→</button>
   </div>
 
+  <div id="errorContainer" class="error-message" style="display:none;"></div>
+
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
-    let currentPage = $("#album .page:first");
+    let book;
+
+    // Función para mostrar error si Turn.js no carga
+    function showError(msg) {
+      document.getElementById('errorContainer').innerHTML = msg;
+      document.getElementById('errorContainer').style.display = 'block';
+    }
+
+    if (typeof $.fn.turn === 'undefined') {
+      showError("Turn.js no se pudo cargar. La animación de pasar página no funcionará. Prueba refrescar o usar otro navegador.");
+    }
+
+    function addRandomDecorations(page) {
+      console.log("Decoraciones desactivadas temporalmente");
+    }
 
     function addMediaToPage(page, url, timestamp = null, key = null) {
       let container = page.find('.photo-wrapper');
@@ -214,37 +228,128 @@
       return true;
     }
 
-    // Agregar botón X para borrar página
     function addDeleteButton(page) {
-      if (page.index() === 0) return; // No borrar la primera página
+      if (page.index() === 0) return;
       const deleteBtn = $('<button class="delete-page">×</button>');
       deleteBtn.click(function() {
         if (confirm("¿Seguro que quieres borrar esta página y todas sus imágenes?")) {
           page.remove();
-          // Aquí puedes agregar borrado de imágenes en Firebase si quieres (opcional)
         }
       });
       page.append(deleteBtn);
     }
 
-    $("#addPageBtn").click(function() {
-      const newPage = $(`
-        <div class="page">
-          <div class="photo-wrapper"></div>
-        </div>
-      `);
-      $("#album").append(newPage);
-      addDeleteButton(newPage);
-      newPage[0].scrollIntoView({ behavior: 'smooth', inline: 'center' });
-      currentPage = newPage;
-    });
+    $(document).ready(function() {
+      console.log("Iniciando Turn.js...");
 
-    $("#prevPage").click(function() {
-      $("#album").scrollLeft($("#album").scrollLeft() - $("#album").width() * 0.5);
-    });
+      $("#flipbook").css({
+        width: '900px',
+        height: '600px',
+        visibility: 'visible',
+        display: 'block'
+      });
 
-    $("#nextPage").click(function() {
-      $("#album").scrollLeft($("#album").scrollLeft() + $("#album").width() * 0.5);
+      try {
+        book = $("#flipbook").turn({
+          width: 900,
+          height: 600,
+          elevation: 50,
+          gradients: true,
+          autoCenter: false,
+          duration: 1200,
+          display: 'double',
+          turnCorners: 'bl,br',
+          acceleration: false,
+          shadows: false
+        });
+        console.log("Turn.js inicializado correctamente");
+      } catch (e) {
+        console.error("Error al inicializar Turn.js:", e);
+        showError("Turn.js falló al inicializarse. La animación de pasar página no funcionará.");
+      }
+
+      const refreshView = () => {
+        if (book) {
+          book.turn('page', 1);
+          $(window).trigger('resize');
+          $("#flipbook")[0].offsetHeight;
+        }
+      };
+
+      refreshView();
+      setTimeout(refreshView, 300);
+      setTimeout(refreshView, 800);
+      setTimeout(refreshView, 1500);
+
+      if (book) {
+        const observer = new MutationObserver(() => {
+          book.turn('page', book.turn('page'));
+          $(window).trigger('resize');
+          $("#flipbook")[0].offsetHeight;
+        });
+        observer.observe($("#flipbook")[0], { childList: true, subtree: true });
+
+        setInterval(refreshView, 4000);
+      }
+
+      if (typeof database !== 'undefined' && database) {
+        setTimeout(() => {
+          database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
+            let currentPage = book ? book.turn('view')[0] : $("#flipbook .page:first");
+            snapshot.forEach(child => {
+              const data = child.val();
+              if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+                currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+                addRandomDecorations(currentPage);
+                if (book) book.turn('addPage', currentPage);
+                addDeleteButton(currentPage);
+              }
+              addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+            });
+            refreshView();
+            console.log("Fotos cargadas desde Firebase");
+          });
+        }, 3000);
+      }
+
+      $("#addPageBtn").click(function() {
+        if (!book) {
+          alert("Turn.js no está disponible. No se puede agregar página.");
+          return;
+        }
+        const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+        addRandomDecorations(newPage);
+        const currentPages = book.turn('pages');
+        book.turn('addPage', newPage, currentPages + 1);
+        addDeleteButton(newPage);
+        setTimeout(() => {
+          book.turn('page', currentPages + 1);
+          refreshView();
+        }, 500);
+      });
+
+      $(window).resize(function() {
+        if (book) {
+          book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+          book.turn('page', book.turn('page'));
+        }
+      });
+
+      if ('ontouchstart' in window) {
+        if (book) book.turn('options', { acceleration: false, shadows: false });
+      }
+
+      document.getElementById('prevPage')?.addEventListener('click', () => {
+        if (book) book.turn('previous');
+      });
+      document.getElementById('nextPage')?.addEventListener('click', () => {
+        if (book) book.turn('next');
+      });
+
+      $("#flipbook").bind("turned", function(event, page) {
+        document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+        document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+      });
     });
 
     document.getElementById('uploadBtn').addEventListener('click', function() {
@@ -263,13 +368,16 @@
             database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
             status.textContent = "¡Guardado! 💖";
             document.getElementById('fileInput').value = '';
-            addMediaToPage(currentPage, data.secure_url);
           }
+        }).catch(err => {
+          console.error("Error al subir foto:", err);
+          status.textContent = "Error al subir la foto 😔";
         });
     });
   </script>
 </body>
 </html>
+
 
 
 
