@@ -203,14 +203,15 @@
     return true;
   }
 
-  $(document).ready(function() {
+$(document).ready(function() {
   console.log("Iniciando Turn.js...");
 
   $("#flipbook").css({
     width: '900px',
     height: '600px',
     visibility: 'visible',
-    display: 'block'
+    display: 'block',
+    background: '#f8f8f8' // Fondo gris para ver si el contenedor está vivo
   });
 
   book = $("#flipbook").turn({
@@ -227,26 +228,27 @@
 
   console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-  // Reforzar la vista inicial
+  // Crear y agregar la hoja inicial
+  const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+  addRandomDecorations(firstPage);
+  book.turn('addPage', firstPage);
   book.turn('page', 1);
 
-  // Reforzar varias veces + resize forzado (esto sí redibuja sin .redraw)
-  setTimeout(() => {
+  console.log("Hoja inicial agregada, páginas ahora:", book.turn('pages'));
+
+  // Reforzar vista (sin .redraw, usando resize forzado)
+  const refreshView = () => {
     book.turn('page', 1);
     $(window).trigger('resize');
-  }, 300);
+  };
 
-  setTimeout(() => {
-    book.turn('page', 1);
-    $(window).trigger('resize');
-  }, 800);
+  refreshView();
+  setTimeout(refreshView, 300);
+  setTimeout(refreshView, 800);
+  setTimeout(refreshView, 1500);
+  setTimeout(refreshView, 2500);
 
-  setTimeout(() => {
-    book.turn('page', 1);
-    $(window).trigger('resize');
-  }, 1500);
-
-  console.log("Hoja inicial reforzada");
+  console.log("Hoja reforzada");
 
   // Cargar recuerdos
   if (typeof database !== 'undefined' && database) {
@@ -262,11 +264,10 @@
           }
           addMediaToPage(currentPage, data.url, data.timestamp, child.key);
         });
-        book.turn('page', book.turn('page'));
-        $(window).trigger('resize');
+        refreshView();
         console.log("Fotos cargadas desde Firebase");
       });
-    }, 2000);
+    }, 3000); // 3 segundos para dar tiempo al render inicial
   }
 
   $("#addPageBtn").click(function() {
@@ -298,6 +299,7 @@
   });
 });
   
+  
   // Subir foto
   document.getElementById('uploadBtn').addEventListener('click', function() {
     const file = document.getElementById('fileInput').files[0];
@@ -321,6 +323,7 @@
 </script>
 </body>
 </html>
+
 
 
 
