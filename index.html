@@ -57,7 +57,7 @@
       z-index: 2 !important;
       pointer-events: none;
     }
-    /* Líneas azules horizontales en TODAS las páginas */
+    /* Líneas azules horizontales suaves en TODAS las páginas */
     .page::after {
       content: "";
       position: absolute;
@@ -272,6 +272,11 @@
       });
       observer.observe($("#flipbook")[0], { childList: true, subtree: true });
 
+      setInterval(() => {
+        refreshView();
+        console.log("Repaint periódico");
+      }, 4000);
+
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
@@ -342,6 +347,7 @@
   </script>
 </body>
 </html>
+
 
 
 
