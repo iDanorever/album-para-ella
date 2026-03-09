@@ -235,6 +235,7 @@
             database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
             status.textContent = "¡Guardado! 💖";
             document.getElementById('fileInput').value = '';
+            // Agregar inmediatamente
             addMediaToPage(currentPage, data.secure_url);
           }
         });
@@ -242,6 +243,7 @@
   </script>
 </body>
 </html>
+
 
 
 
