@@ -45,7 +45,7 @@
         linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important,
         linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px) !important;
       background-size: 100% 40px, 100% 100% !important;
-      background-repeat: repeat !important;
+      background-attachment: fixed !important; /* Clave para que no se pierda el background */
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
       position: relative !important;
       overflow: hidden !important;
@@ -245,21 +245,21 @@
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-      // Reforzar la vista inicial
+      // Reforzar la vista inicial con repaint fuerte
       const refreshView = () => {
         book.turn('page', 1);
         $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight;
+        $("#flipbook")[0].offsetHeight; // Forzar reflow
+        requestAnimationFrame(refreshView); // Repaint continuo hasta que se estabilice
       };
 
-      refreshView();
-      setTimeout(refreshView, 300);
-      setTimeout(refreshView, 800);
-      setTimeout(refreshView, 1500);
-      setTimeout(refreshView, 2500);
+      refreshView(); // Inmediato
+      setTimeout(() => { refreshView(); requestAnimationFrame(refreshView); }, 500);
+      setTimeout(() => { refreshView(); requestAnimationFrame(refreshView); }, 1500);
 
       console.log("Hoja inicial reforzada");
 
+      // Cargar recuerdos
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
@@ -330,6 +330,7 @@
   </script>
 </body>
 </html>
+
 
 
 
