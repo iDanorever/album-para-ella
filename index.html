@@ -45,7 +45,6 @@
       overflow: hidden !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
-    /* Margen rojo vertical delgado a la izquierda en TODAS las páginas */
     .page::before {
       content: "";
       position: absolute;
@@ -57,7 +56,6 @@
       z-index: 2 !important;
       pointer-events: none;
     }
-    /* Líneas azules horizontales suaves en TODAS las páginas */
     .page::after {
       content: "";
       position: absolute;
@@ -119,39 +117,15 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
+    // Chequeo inmediato para saber si Turn.js cargó
+    if (typeof $.fn.turn === 'undefined') {
+      console.error("Turn.js NO cargó correctamente - CDN falló o bloqueado");
+      alert("Error crítico: Turn.js no se cargó. Revisa conexión, prueba otro navegador o modo incógnito.");
+    } else {
+      console.log("Turn.js cargó correctamente desde CDN");
+    }
+
     let book;
-
-    const decorations = [
-      'decorations/rosa-esquina1.png',
-      'decorations/petalos-cayendo.png',
-      'decorations/rosa-rosa-esquina.png',
-      'decorations/corazon-flor.png',
-      'decorations/flores-acuarela.png',
-      'decorations/bouquet-rosa.png',
-      'decorations/petalos-suaves.png',
-      'decorations/corazon-rosa.png',
-      'decorations/corazon-pequeno.png',
-      'decorations/rosas-pequenas.png',
-      'decorations/flor-solitaria.png',
-      'decorations/petalos-rosa.png'
-    ];
-
-    const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-
-    const decorPositions = {
-      'rosa-esquina1.png': ['top-left', 'top-right'],
-      'petalos-cayendo.png': ['bottom-left', 'bottom-right'],
-      'rosa-rosa-esquina.png': ['top-right', 'bottom-right'],
-      'corazon-flor.png': ['top-left', 'top-right'],
-      'flores-acuarela.png': ['bottom-left', 'bottom-right'],
-      'bouquet-rosa.png': ['bottom-left', 'bottom-right'],
-      'petalos-suaves.png': ['bottom-left', 'bottom-right'],
-      'corazon-rosa.png': ['top-left', 'top-right'],
-      'corazon-pequeno.png': ['bottom-left', 'bottom-right'],
-      'rosas-pequenas.png': ['bottom-left', 'bottom-right'],
-      'flor-solitaria.png': ['top-left', 'bottom-left'],
-      'petalos-rosa.png': ['bottom-left', 'bottom-right']
-    };
 
     function addRandomDecorations(page) {
       console.log("Decoraciones desactivadas temporalmente");
@@ -220,9 +194,6 @@
         photoBox.append(controls);
       }
       container.append(photoBox);
-      if (container.children('.photo-box').length === 2) {
-        setTimeout(() => book.turn('next'), 600);
-      }
       return true;
     }
 
@@ -236,25 +207,31 @@
         display: 'block'
       });
 
-      book = $("#flipbook").turn({
-        width: 900,
-        height: 600,
-        elevation: 50,
-        gradients: true,
-        autoCenter: false,
-        duration: 1200,
-        display: 'double',
-        turnCorners: 'bl,br',
-        acceleration: false,
-        shadows: false
-      });
-
-      console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
+      try {
+        book = $("#flipbook").turn({
+          width: 900,
+          height: 600,
+          elevation: 50,
+          gradients: true,
+          autoCenter: false,
+          duration: 1200,
+          display: 'double',
+          turnCorners: 'bl,br',
+          acceleration: false,
+          shadows: false
+        });
+        console.log("Turn.js inicializado correctamente, páginas actuales:", book.turn('pages'));
+      } catch (e) {
+        console.error("Error al inicializar Turn.js:", e);
+        alert("Turn.js falló al inicializarse. El botón de agregar página no funcionará.");
+      }
 
       const refreshView = () => {
-        book.turn('page', 1);
-        $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight;
+        if (book) {
+          book.turn('page', 1);
+          $(window).trigger('resize');
+          $("#flipbook")[0].offsetHeight;
+        }
       };
 
       refreshView();
@@ -264,29 +241,34 @@
 
       console.log("Hoja inicial reforzada");
 
-      const observer = new MutationObserver(() => {
-        book.turn('page', book.turn('page'));
-        $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight;
-        console.log("Repaint forzado por cambio en DOM");
-      });
-      observer.observe($("#flipbook")[0], { childList: true, subtree: true });
+      if (book) {
+        const observer = new MutationObserver(() => {
+          if (book) {
+            book.turn('page', book.turn('page'));
+            $(window).trigger('resize');
+            $("#flipbook")[0].offsetHeight;
+            console.log("Repaint forzado por cambio en DOM");
+          }
+        });
+        observer.observe($("#flipbook")[0], { childList: true, subtree: true });
 
-      setInterval(() => {
-        refreshView();
-        console.log("Repaint periódico");
-      }, 4000);
+        setInterval(() => {
+          refreshView();
+          console.log("Repaint periódico");
+        }, 4000);
+      }
 
       if (typeof database !== 'undefined' && database) {
         setTimeout(() => {
           database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
-            let currentPage = book.turn('view')[0];
+            let currentPage = book ? book.turn('view')[0] : $("#flipbook .page:first");
             snapshot.forEach(child => {
               const data = child.val();
               if (!currentPage || currentPage.find('.photo-box').length >= 2) {
                 currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
                 addRandomDecorations(currentPage);
-                book.turn('addPage', currentPage);
+                if (book) book.turn('addPage', currentPage);
+                else $("#flipbook").append(currentPage);
               }
               addMediaToPage(currentPage, data.url, data.timestamp, child.key);
             });
@@ -297,6 +279,10 @@
       }
 
       $("#addPageBtn").click(function() {
+        if (!book) {
+          alert("Turn.js no está cargado. No se puede agregar página nueva.");
+          return;
+        }
         const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
         addRandomDecorations(newPage);
         const currentPages = book.turn('pages');
@@ -308,20 +294,26 @@
       });
 
       $(window).resize(function() {
-        book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-        book.turn('page', book.turn('page'));
+        if (book) {
+          book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+          book.turn('page', book.turn('page'));
+        }
       });
 
       if ('ontouchstart' in window) {
-        book.turn('options', { acceleration: false, shadows: false });
+        if (book) book.turn('options', { acceleration: false, shadows: false });
       }
 
-      document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
-      document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+      document.getElementById('prevPage')?.addEventListener('click', () => {
+        if (book) book.turn('previous');
+      });
+      document.getElementById('nextPage')?.addEventListener('click', () => {
+        if (book) book.turn('next');
+      });
 
       $("#flipbook").bind("turned", function(event, page) {
         document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
-        document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+        document.getElementById('nextPage').style.opacity = (page === (book ? book.turn('pages') : 1)) ? '0.4' : '1';
       });
     });
 
@@ -347,6 +339,7 @@
   </script>
 </body>
 </html>
+
 
 
 
