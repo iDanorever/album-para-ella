@@ -33,7 +33,7 @@
       position: relative !important;
       z-index: 1 !important;
       overflow: hidden !important;
-      background: #f8f8f8 !important; /* Fondo gris temporal para ver el rectángulo */
+      background: #f8f8f8 !important; /* Fondo gris temporal para ver si el contenedor está vivo */
     }
     .book-wrapper { width: 900px !important; margin: 0 auto !important; }
     @media (min-width: 768px) { #flipbook { width: 90vw !important; max-width: 1000px !important; height: 70vh !important; } }
@@ -236,7 +236,7 @@
         height: 600,
         elevation: 50,
         gradients: true,
-        autoCenter: false,  // Desactivado para que no se mueva al centro
+        autoCenter: false,
         duration: 1200,
         display: 'double',
         turnCorners: 'bl,br',
@@ -308,6 +308,7 @@
       });
     });
 
+    // Subir foto
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
       const status = document.getElementById('uploadStatus');
@@ -330,6 +331,7 @@
   </script>
 </body>
 </html>
+
 
 
 
