@@ -45,6 +45,8 @@
     .navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
     .form-container, #addPageWrapper { max-width: 400px; margin: 20px auto; text-align: center; }
     @media (max-width: 768px) { #flipbook { width: 95% !important; height: 600px !important; } .photo-wrapper { grid-template-columns: 1fr; } .photo-wrapper img { height: 40vh; } }
+
+    #flipbook { background: #f8f8f8; } /* Fondo gris temporal para ver el rectángulo */
   </style>
 </head>
 <body>
@@ -202,100 +204,100 @@
   }
 
   $(document).ready(function() {
-    console.log("Iniciando Turn.js...");
+  console.log("Iniciando Turn.js...");
 
-    $("#flipbook").css({
-      width: '900px',
-      height: '600px',
-      visibility: 'visible',
-      display: 'block'
-    });
-
-    book = $("#flipbook").turn({
-      width: 900,
-      height: 600,
-      elevation: 50,
-      gradients: true,
-      autoCenter: true,
-      duration: 1200,
-      display: 'double',
-      turnCorners: 'bl,br',
-      acceleration: true
-    });
-
-    console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
-
-    // Crear hoja inicial
-    const firstPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-    addRandomDecorations(firstPage);
-    book.turn('addPage', firstPage);
-    book.turn('page', 1);
-
-    console.log("Hoja inicial agregada, páginas ahora:", book.turn('pages'));
-
-    // Reforzar vista
-    setTimeout(() => {
-      book.turn('page', 1);
-      $(window).trigger('resize');
-    }, 500);
-
-    setTimeout(() => {
-      book.turn('page', 1);
-      $(window).trigger('resize');
-    }, 1500);
-
-    // Cargar recuerdos
-    if (typeof database !== 'undefined' && database) {
-      setTimeout(() => {
-        database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
-          let currentPage = book.turn('view')[0];
-          snapshot.forEach(child => {
-            const data = child.val();
-            if (!currentPage || currentPage.find('.photo-box').length >= 2) {
-              currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-              addRandomDecorations(currentPage);
-              book.turn('addPage', currentPage);
-            }
-            addMediaToPage(currentPage, data.url, data.timestamp, child.key);
-          });
-          book.turn('page', book.turn('page'));
-          $(window).trigger('resize');
-          console.log("Fotos cargadas desde Firebase");
-        });
-      }, 2000);
-    }
-
-    $("#addPageBtn").click(function() {
-      const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
-      addRandomDecorations(newPage);
-      const currentPages = book.turn('pages');
-      book.turn('addPage', newPage, currentPages + 1);
-      setTimeout(() => {
-        book.turn('page', currentPages + 1);
-        $(window).trigger('resize');
-      }, 500);
-    });
-
-    $(window).resize(function() {
-      book.turn('size', $("#flipbook").width(), $("#flipbook").height());
-      book.turn('page', book.turn('page'));
-    });
-
-    if ('ontouchstart' in window) {
-      book.turn('options', { acceleration: true, shadows: false });
-    }
-
-    document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
-    document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
-
-    $("#flipbook").bind("turned", function(event, page) {
-      document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
-      document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
-    });
-
-    console.log("Script completo cargado");
+  $("#flipbook").css({
+    width: '900px',
+    height: '600px',
+    visibility: 'visible',
+    display: 'block'
   });
 
+  book = $("#flipbook").turn({
+    width: 900,
+    height: 600,
+    elevation: 50,
+    gradients: true,
+    autoCenter: true,
+    duration: 1200,
+    display: 'double',
+    turnCorners: 'bl,br',
+    acceleration: true
+  });
+
+  console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
+
+  // Reforzar la vista inicial
+  book.turn('page', 1);
+
+  // Reforzar varias veces + resize forzado (esto sí redibuja sin .redraw)
+  setTimeout(() => {
+    book.turn('page', 1);
+    $(window).trigger('resize');
+  }, 300);
+
+  setTimeout(() => {
+    book.turn('page', 1);
+    $(window).trigger('resize');
+  }, 800);
+
+  setTimeout(() => {
+    book.turn('page', 1);
+    $(window).trigger('resize');
+  }, 1500);
+
+  console.log("Hoja inicial reforzada");
+
+  // Cargar recuerdos
+  if (typeof database !== 'undefined' && database) {
+    setTimeout(() => {
+      database.ref('recuerdos').orderByChild('timestamp').once('value').then(snapshot => {
+        let currentPage = book.turn('view')[0];
+        snapshot.forEach(child => {
+          const data = child.val();
+          if (!currentPage || currentPage.find('.photo-box').length >= 2) {
+            currentPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+            addRandomDecorations(currentPage);
+            book.turn('addPage', currentPage);
+          }
+          addMediaToPage(currentPage, data.url, data.timestamp, child.key);
+        });
+        book.turn('page', book.turn('page'));
+        $(window).trigger('resize');
+        console.log("Fotos cargadas desde Firebase");
+      });
+    }, 2000);
+  }
+
+  $("#addPageBtn").click(function() {
+    const newPage = $('<div class="page"><div class="photo-wrapper"></div></div>');
+    addRandomDecorations(newPage);
+    const currentPages = book.turn('pages');
+    book.turn('addPage', newPage, currentPages + 1);
+    setTimeout(() => {
+      book.turn('page', currentPages + 1);
+      $(window).trigger('resize');
+    }, 500);
+  });
+
+  $(window).resize(function() {
+    book.turn('size', $("#flipbook").width(), $("#flipbook").height());
+    book.turn('page', book.turn('page'));
+  });
+
+  if ('ontouchstart' in window) {
+    book.turn('options', { acceleration: true, shadows: false });
+  }
+
+  document.getElementById('prevPage')?.addEventListener('click', () => book.turn('previous'));
+  document.getElementById('nextPage')?.addEventListener('click', () => book.turn('next'));
+
+  $("#flipbook").bind("turned", function(event, page) {
+    document.getElementById('prevPage').style.opacity = (page === 1) ? '0.4' : '1';
+    document.getElementById('nextPage').style.opacity = (page === book.turn('pages')) ? '0.4' : '1';
+  });
+});
+  
   // Subir foto
   document.getElementById('uploadBtn').addEventListener('click', function() {
     const file = document.getElementById('fileInput').files[0];
@@ -319,6 +321,7 @@
 </script>
 </body>
 </html>
+
 
 
 
