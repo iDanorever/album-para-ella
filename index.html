@@ -23,6 +23,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nuestro Álbum de Recuerdos 💕</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
   <style>
     body { background: linear-gradient(to bottom, #fff0f5, #ffe4e1); font-family: 'Georgia', serif; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
     .main-container { max-width: 1000px; margin: 0 auto; }
@@ -33,7 +34,6 @@
       position: relative !important;
       z-index: 1 !important;
       overflow: hidden !important;
-      background: #f8f8f8 !important; /* Fondo gris temporal - quítalo cuando funcione */
     }
     .book-wrapper { width: 900px !important; margin: 0 auto !important; }
     @media (min-width: 768px) { #flipbook { width: 90vw !important; max-width: 1000px !important; height: 70vh !important; } }
@@ -45,19 +45,19 @@
       overflow: hidden !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
-    /* Margen rojo vertical a la izquierda en TODAS las páginas */
+    /* Margen rojo vertical delgado a la izquierda en TODAS las páginas */
     .page::before {
       content: "";
       position: absolute;
       left: 0;
       top: 0;
-      width: 43px !important;
+      width: 3px !important;
       height: 100% !important;
       background: #ff0000 !important;
       z-index: 2 !important;
       pointer-events: none;
     }
-    /* Líneas azules horizontales en TODAS las páginas */
+    /* Líneas azules horizontales suaves en TODAS las páginas */
     .page::after {
       content: "";
       position: absolute;
@@ -65,7 +65,7 @@
       top: 0;
       width: 100% !important;
       height: 100% !important;
-      background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important;
+      background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 1.5px, transparent 1.5px) !important;
       background-size: 100% 40px !important;
       pointer-events: none;
       z-index: 2 !important;
@@ -118,7 +118,6 @@
   </div>
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
   <script>
     let book;
 
@@ -155,7 +154,7 @@
     };
 
     function addRandomDecorations(page) {
-      // Temporalmente desactivadas para depurar - descomenta cuando todo esté estable
+      // Desactivadas temporalmente - descomenta cuando todo esté estable
       console.log("Decoraciones desactivadas temporalmente");
       /*
       const numDeco = Math.floor(Math.random() * 2) + 2;
@@ -366,6 +365,7 @@
   </script>
 </body>
 </html>
+
 
 
 
