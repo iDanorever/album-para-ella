@@ -33,7 +33,7 @@
       position: relative !important;
       z-index: 1 !important;
       overflow: hidden !important;
-      background: #f8f8f8 !important;
+      background: #f8f8f8 !important; /* Fondo gris temporal - quítalo cuando funcione */
     }
     .book-wrapper { width: 900px !important; margin: 0 auto !important; }
     @media (min-width: 768px) { #flipbook { width: 90vw !important; max-width: 1000px !important; height: 70vh !important; } }
@@ -45,7 +45,7 @@
         linear-gradient(to bottom, transparent 0%, transparent 1px, #add8e6 1px, #add8e6 2px, transparent 2px) !important,
         linear-gradient(to right, transparent 0%, transparent 40px, #ff0000 40px, #ff0000 43px, transparent 43px) !important;
       background-size: 100% 40px, 100% 100% !important;
-      background-attachment: fixed !important; /* Clave para que no se pierda el background */
+      background-attachment: fixed !important; /* Evita que se pierda el fondo al redraw */
       box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
       position: relative !important;
       overflow: hidden !important;
@@ -245,17 +245,18 @@
 
       console.log("Turn.js inicializado, páginas actuales:", book.turn('pages'));
 
-      // Reforzar la vista inicial con repaint fuerte
+      // Reforzar la vista inicial
       const refreshView = () => {
         book.turn('page', 1);
         $(window).trigger('resize');
-        $("#flipbook")[0].offsetHeight; // Forzar reflow
-        requestAnimationFrame(refreshView); // Repaint continuo hasta que se estabilice
+        $("#flipbook")[0].offsetHeight;
       };
 
-      refreshView(); // Inmediato
-      setTimeout(() => { refreshView(); requestAnimationFrame(refreshView); }, 500);
-      setTimeout(() => { refreshView(); requestAnimationFrame(refreshView); }, 1500);
+      refreshView();
+      setTimeout(refreshView, 300);
+      setTimeout(refreshView, 800);
+      setTimeout(refreshView, 1500);
+      setTimeout(refreshView, 2500);
 
       console.log("Hoja inicial reforzada");
 
@@ -330,3 +331,4 @@
   </script>
 </body>
 </html>
+
