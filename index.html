@@ -230,28 +230,50 @@ body {
       container.append(photoBox);
       return true;
     }
+// Cargar cantidad de páginas guardada (persiste las que creaste)
+database.ref('settings/pageCount').once('value').then(snap => {
+  let savedCount = snap.val() || 1;  // mínimo 1 página
+  // Si hay más páginas guardadas que las actuales, crea las faltantes
+  while (pages.length < savedCount) {
+    const newPage = createPage();
+    addDeleteButton(newPage, pages.length - 1);
+  }
+  updatePages();
+});
 
-    function addDeleteButton(page, index) {
-      if (index === 0) return;
-      const deleteBtn = $('<button class="delete-page">×</button>');
-      deleteBtn.click(function() {
-        if (confirm("¿Seguro que quieres borrar esta página y todas sus imágenes?")) {
-          page.remove();
-          pages.splice(index, 1);
-          if (currentIndex >= pages.length) currentIndex = pages.length - 1;
-          updatePages();
-        }
-      });
-      page.append(deleteBtn);
+// Cargar TODAS las imágenes existentes de Firebase al inicio
+database.ref('recuerdos').once('value').then(snapshot => {
+  const recuerdos = snapshot.val() || {};
+  Object.keys(recuerdos).forEach(key => {
+    const data = recuerdos[key];
+    let added = false;
+    // Intenta agregar en páginas existentes
+    for (let i = 0; i < pages.length; i++) {
+      if (addMediaToPage(pages[i], data.url, data.timestamp, key)) {
+        added = true;
+        break;
+      }
     }
-
-    $("#addPageBtn").click(function() {
+    // Si no cupo en ninguna, crea página nueva y guarda el nuevo total
+    if (!added) {
       const newPage = createPage();
       addDeleteButton(newPage, pages.length - 1);
+      addMediaToPage(newPage, data.url, data.timestamp, key);
+      database.ref('settings/pageCount').set(pages.length); // actualiza cantidad
       currentIndex = pages.length - 1;
       updatePages();
-    });
+    }
+  });
+});
 
+// Cada vez que agregas una página nueva, guarda la cantidad
+$("#addPageBtn").click(function() {
+  const newPage = createPage();
+  addDeleteButton(newPage, pages.length - 1);
+  currentIndex = pages.length - 1;
+  updatePages();
+  database.ref('settings/pageCount').set(pages.length); // ← esto guarda el número
+});
     $("#prevPage").click(function() {
       if (currentIndex > 0) {
         currentIndex--;
@@ -290,9 +312,11 @@ body {
     // Inicializar con al menos una página
     createPage();
     updatePages();
+
   </script>
 </body>
 </html>
+
 
 
 
