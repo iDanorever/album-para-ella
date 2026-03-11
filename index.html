@@ -20,7 +20,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nuestro Álbum de Recuerdos 💕</title>
-  <style>
+ <style>
 body { 
   background: linear-gradient(to bottom, #fff0f5, #ffe4e1); 
   font-family: 'Georgia', serif; 
@@ -28,69 +28,99 @@ body {
 }
 .main-container { max-width: 1000px; margin: 0 auto; }
 #album {
-  width: 900px; height: 600px; margin: 30px auto;
-  position: relative; perspective: 2500px;   /* ← más profundidad para mejor 3D */
-  background: #f8f8f8; border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  width: 900px; height: 600px; margin: 40px auto;
+  position: relative; 
+  perspective: 2200px;  /* profundidad para 3D más natural en cuaderno */
+  background: #f9f9f9; border-radius: 6px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
 .page {
-  width: 100%; height: 100%; background: white;
+  width: 100%; height: 100%; background: #fffef7;  /* tono papel cuaderno viejo */
   position: absolute; top: 0; left: 0;
-  box-shadow: 20px 30px 50px rgba(0,0,0,0.3);
+  box-shadow: 10px 15px 30px rgba(0,0,0,0.25);
   transform-origin: left center;
-  transition: transform 1.6s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 1.6s;
+  transition: transform 1.8s cubic-bezier(0.645, 0.045, 0.355, 1), box-shadow 1.8s;  /* curva más suave y realista */
   backface-visibility: hidden;
   overflow: hidden;
 }
 .page.active {
-  transform: rotateY(-8deg) rotateX(6deg);   /* ← inclinación realista como en tu captura */
+  transform: rotateY(-12deg) rotateX(4deg) skewY(-2deg);  /* inclinación + leve skew para "curvatura" abierta */
   z-index: 10;
-  box-shadow: 30px 40px 60px rgba(0,0,0,0.35);
+  box-shadow: 25px 35px 50px rgba(0,0,0,0.3);
 }
 .page.prev {
-  transform: rotateY(-172deg);               /* casi cerrado atrás */
-  box-shadow: -30px 20px 40px rgba(0,0,0,0.4);
+  transform: rotateY(-168deg) skewY(3deg);  /* casi cerrado atrás con skew para curvatura */
+  box-shadow: -25px 15px 35px rgba(0,0,0,0.35);
   z-index: 5;
 }
 .page.next {
-  transform: rotateY(172deg);                /* casi cerrado adelante */
-  box-shadow: 30px 20px 40px rgba(0,0,0,0.4);
+  transform: rotateY(168deg) skewY(-3deg);  /* casi cerrado adelante */
+  box-shadow: 25px 15px 35px rgba(0,0,0,0.35);
   z-index: 5;
 }
 
-.page::before { /* borde rojo izquierdo */
-  content: ""; position: absolute; left: 0; top: 0; width: 6px; height: 100%;
-  background: #ff0000; z-index: 20;
-}
-.page::after { /* líneas azules */
-  content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-  background-image: linear-gradient(to bottom, transparent 0%, transparent 1px, #4a90e2 1px, #4a90e2 2px, transparent 2px);
-  background-size: 100% 40px; pointer-events: none; z-index: 10;
+/* ANILLOS ESPIRAL (izquierda, como cuaderno real) */
+.page::before {
+  content: "";
+  position: absolute; left: -12px; top: 0; width: 24px; height: 100%;
+  background: repeating-radial-gradient(circle at 12px 20px, #c0c0c0 0, #c0c0c0 3px, transparent 3px, transparent 12px);
+  background-size: 24px 40px;  /* separación de anillos ~40px */
+  z-index: 25;
+  pointer-events: none;
+  transform: translateX(-50%);
 }
 
-/* el resto de tus estilos se mantienen exactamente iguales ↓ */
+/* Perforaciones sutiles para realismo (opcional, pero pega) */
+.page::after {
+  content: "";
+  position: absolute; left: 8px; top: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 0 20px, rgba(0,0,0,0.08) 1px, transparent 1.5px);
+  background-size: 30px 40px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.6;
+}
+
+/* Líneas azules (mantengo como tenías, pero más suaves) */
+.page .lines {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 1px, #a0c4ff 1px, #a0c4ff 2px, transparent 2px);
+  background-size: 100% 40px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Fotos y wrapper (ajustado para que no choque con anillos) */
 .photo-wrapper { 
-  width: 90%; height: 90%; display: grid; grid-template-columns: 1fr; gap: 25px; 
-  padding: 30px; align-content: center; position: relative; z-index: 11; 
+  width: 88%; height: 92%; margin: 4% auto 4% 6%;  /* más espacio izquierda por anillos */
+  display: grid; grid-template-columns: 1fr; gap: 20px; 
+  padding: 20px; align-content: center; position: relative; z-index: 15; 
 }
 .photo-wrapper img { 
-  width: 100%; max-height: 42%; object-fit: contain; border-radius: 10px; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 0 auto; display: block; 
+  width: 100%; max-height: 42%; object-fit: contain; border-radius: 8px; 
+  box-shadow: 0 5px 15px rgba(0,0,0,0.18); 
 }
-.photo-box { position: relative; }
-.controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; z-index: 20; }
-.controls button { background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 1.1em; }
-.timestamp { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); color: #c71585; font-size: 0.85em; background: rgba(255,255,255,0.6); padding: 4px 12px; border-radius: 20px; z-index: 10; }
-.delete-page {
-  position: absolute; top: 10px; right: 10px; background: #ff0000; color: white;
-  border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px;
-  cursor: pointer; z-index: 30;
+
+/* Corazón pinned (lo agrego sutil si quieres, o quítalo si no) */
+.page .heart {
+  position: absolute; top: 15px; right: 15px; font-size: 28px; color: #ff1744;
+  z-index: 30; animation: beat 2s infinite ease-in-out;
 }
-#addPageBtn { padding: 12px 30px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; pointer-events: auto; z-index: 9999; margin: 20px auto; display: block; }
-.navigation-arrows { display: flex; position: fixed; bottom: 30px; left: 0; right: 0; z-index: 1000; justify-content: space-between; padding: 0 20px; pointer-events: auto; }
-.navigation-arrows button { background: rgba(255,105,180,0.8); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; }
-.form-container { max-width: 400px; margin: 20px auto; text-align: center; }
-@media (max-width: 768px) { #album { width: 95%; height: 600px; } .photo-wrapper img { max-height: 35%; } }
+@keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+/* Resto de tus estilos (controls, timestamp, delete, botones, media queries) se mantienen */
+.controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 20; }
+.controls button { background: rgba(0,0,0,0.65); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1.2em; }
+.timestamp { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); color: #d81b60; font-size: 0.9em; background: rgba(255,255,255,0.7); padding: 4px 14px; border-radius: 20px; z-index: 12; }
+.delete-page { position: absolute; top: 12px; right: 50px; background: #f44336; color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 14px; cursor: pointer; z-index: 30; }
+#addPageBtn { padding: 12px 32px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; margin: 20px auto; display: block; }
+.navigation-arrows { display: flex; position: fixed; bottom: 40px; left: 0; right: 0; justify-content: space-between; padding: 0 30px; z-index: 1000; }
+.navigation-arrows button { background: rgba(255,105,180,0.85); color: white; border: none; border-radius: 50%; width: 65px; height: 65px; font-size: 2.2em; cursor: pointer; box-shadow: 0 5px 12px rgba(0,0,0,0.25); }
+.form-container { max-width: 420px; margin: 25px auto; text-align: center; }
+@media (max-width: 768px) { 
+  #album { width: 96%; height: 580px; } 
+  .photo-wrapper { margin-left: 8%; width: 84%; } 
+}
 </style>
 </head>
 <body>
@@ -263,6 +293,7 @@ body {
   </script>
 </body>
 </html>
+
 
 
 
