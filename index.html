@@ -62,13 +62,13 @@
     }
 
 .photo-wrapper {
-  width: 96%;                     /* casi todo el ancho posible */
-  height: 90%;                    /* ocupa casi toda la altura de la hoja */
-  margin: 5% auto 3% 2%;          /* reduce márgenes para que las fotos lleguen más cerca de los bordes */
+  width: 98%;                     /* casi todo el ancho de la hoja */
+  height: 92%;                    /* ocupa casi toda la altura posible */
+  margin: 4% auto 2% 1%;          /* márgenes mínimos para que llegue cerca de los bordes */
   display: grid;
-  grid-template-rows: 1fr 1fr;    /* dos slots iguales, uno arriba y uno abajo */
-  gap: 18px;                      /* separación entre las dos fotos (puedes subir a 25px si quieres más espacio) */
-  padding: 8px;                   /* padding pequeño para que las fotos se extiendan más */
+  grid-template-rows: 1fr 1fr;    /* dos slots iguales: arriba y abajo */
+  gap: 15px;                      /* separación pequeña entre fotos para maximizar tamaño */
+  padding: 6px;                   /* padding mínimo para que las fotos se extiendan más */
   position: relative;
   z-index: 15;
   box-sizing: border-box;
@@ -76,12 +76,12 @@
 
 .photo-box {
   width: 100%;
-  height: 100%;                   /* ocupa TODA la altura del slot (grueso) */
+  height: 100%;                   /* llena completamente el slot (muy grueso y alto) */
   position: relative;
-  overflow: hidden;               /* evita que la imagen se salga */
+  overflow: hidden;               /* no deja que la imagen se salga */
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.4);  /* fondo sutil para que se vea "lleno" */
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);  /* sombra más gruesa para que se sienta grande */
+  background: rgba(255, 255, 255, 0.3);  /* fondo muy sutil */
+  box-shadow: 0 8px 22px rgba(0,0,0,0.2); /* sombra gruesa para que se vea "grande" */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -90,8 +90,8 @@
 
 .photo-box img {
   width: 100%;
-  height: 100%;                   /* llena completamente el rectángulo (grueso) */
-  object-fit: cover;              /* rellena todo el espacio (corta un poco si es necesario, pero se ve grande) */
+  height: 100%;                   /* ocupa TODO el rectángulo (extiende al máximo) */
+  object-fit: cover;              /* rellena todo el espacio, se ve grueso y grande */
   object-position: center;
   border-radius: 12px;
 }
@@ -103,18 +103,18 @@
 
     .controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 20; }
     .controls button { background: rgba(0,0,0,0.65); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1.2em; }
-   .timestamp {
+  .timestamp {
   position: absolute;
-  bottom: 10px;                   /* justo debajo de la foto, dentro del rectángulo */
+  bottom: 8px;                    /* justo abajo de la foto, dentro del rectángulo */
   left: 50%;
   transform: translateX(-50%);
   color: #d81b60;
-  font-size: 0.95em;              /* un poquito más grande */
-  background: rgba(255,255,255,0.9);
+  font-size: 0.95em;              /* un poco más visible */
+  background: rgba(255,255,255,0.92);
   padding: 5px 14px;
   border-radius: 20px;
   z-index: 14;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
   white-space: nowrap;
 }
     
@@ -413,6 +413,7 @@ $("#nextPage").click(function() {
   </script>
 </body>
 </html>
+
 
 
 
