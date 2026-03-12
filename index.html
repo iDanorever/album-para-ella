@@ -174,12 +174,12 @@ body {
       });
     }
 
-    function addMediaToPage(page, url, timestamp = null, key = null) {
-      let container = page.find('.photo-wrapper');
-      if (container.children('.photo-box').length >= 2) {
-        alert("Esta hoja ya tiene 2 fotos 💕 Agrega una nueva página.");
-        return false;
-      }
+   function addMediaToPage(page, url, timestamp = null, key = null) {
+  let container = page.find('.photo-wrapper');
+  if (container.children('.photo-box').length >= 2) {
+    alert("Esta hoja ya tiene 2 fotos 💕 Agrega una nueva página.");
+    return false;
+  }
       const photoBox = $('<div class="photo-box"></div>').css({ position: 'relative' });
       const img = $('<img>').attr('src', url).css({
         width: '100%',
@@ -288,26 +288,43 @@ $("#addPageBtn").click(function() {
       }
     });
 
-    document.getElementById('uploadBtn').addEventListener('click', function() {
-      const file = document.getElementById('fileInput').files[0];
-      const status = document.getElementById('uploadStatus');
-      if (!file) return status.textContent = "Elige una foto primero 💕";
+ document.getElementById('uploadBtn').addEventListener('click', function() {
+  const file = document.getElementById('fileInput').files[0];
+  const status = document.getElementById('uploadStatus');
+  if (!file) return status.textContent = "Elige una foto primero 💕";
 
-      status.textContent = "Procesando... 😊";
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'album_preset');
-      fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-          if (data.secure_url) {
-            database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            status.textContent = "¡Guardado! 💖";
-            document.getElementById('fileInput').value = '';
-            addMediaToPage(pages[currentIndex], data.secure_url);
-          }
-        });
+  // NUEVA ALERTA cuando todas las páginas están llenas
+  let canAdd = false;
+  for (let i = 0; i < pages.length; i++) {
+    if (pages[i].find('.photo-wrapper').children('.photo-box').length < 2) {
+      canAdd = true;
+      break;
+    }
+  }
+  if (!canAdd) {
+    alert("¡Todas las hojas están llenas! 💕\nAgrega una nueva página primero con el botón de abajo.");
+    status.textContent = "Necesitas agregar una página nueva";
+    return;
+  }
+
+  status.textContent = "Procesando... 😊";
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'album_preset');
+
+  fetch('https://api.cloudinary.com/v1_1/dqf69c8cn/image/upload', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+      if (data.secure_url) {
+        database.ref('recuerdos').push({ url: data.secure_url, timestamp: firebase.database.ServerValue.TIMESTAMP });
+        status.textContent = "¡Guardado! 💖";
+        document.getElementById('fileInput').value = '';
+
+        // Solo agrega a la página actual (sin crear automática)
+        addMediaToPage(pages[currentIndex], data.secure_url);
+      }
     });
+});
 
     // Inicializar con al menos una página
     createPage();
@@ -316,6 +333,7 @@ $("#addPageBtn").click(function() {
   </script>
 </body>
 </html>
+
 
 
 
