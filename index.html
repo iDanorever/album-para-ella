@@ -242,38 +242,55 @@
     }
 
     // Cargar páginas y fotos guardadas al inicio
-    $(document).ready(() => {
-      database.ref('settings/pageCount').once('value').then(snap => {
-        let savedCount = snap.val() || 1;
-        while (pages.length < savedCount) {
+   // Cargar todo de forma ordenada para que el total sea consistente
+$(document).ready(() => {
+  // Paso 1: cargar conteo de páginas y crearlas primero
+  database.ref('settings/pageCount').once('value').then(snap => {
+    let savedCount = snap.val() || 1;
+
+    // Crear exactamente las páginas guardadas
+    for (let i = pages.length; i < savedCount; i++) {
+      const newPage = createPage();
+      if (i > 0) addDeleteButton(newPage, i);
+    }
+
+    // Paso 2: ahora sí cargar las fotos
+    database.ref('recuerdos').once('value').then(snapshot => {
+      const recuerdos = snapshot.val() || {};
+      let extraPagesCreated = false;
+
+      Object.keys(recuerdos).forEach(key => {
+        const data = recuerdos[key];
+        let added = false;
+
+        // Intentar colocar en páginas existentes
+        for (let i = 0; i < pages.length; i++) {
+          if (addMediaToPage(pages[i], data.url, data.timestamp, key)) {
+            added = true;
+            break;
+          }
+        }
+
+        // Si no cupo → crear página nueva
+        if (!added) {
           const newPage = createPage();
           addDeleteButton(newPage, pages.length - 1);
+          addMediaToPage(newPage, data.url, data.timestamp, key);
+          extraPagesCreated = true;
+          currentIndex = pages.length - 1;
         }
-        updatePages();
       });
 
-      database.ref('recuerdos').once('value').then(snapshot => {
-        const recuerdos = snapshot.val() || {};
-        Object.keys(recuerdos).forEach(key => {
-          const data = recuerdos[key];
-          let added = false;
-          for (let i = 0; i < pages.length; i++) {
-            if (addMediaToPage(pages[i], data.url, data.timestamp, key)) {
-              added = true;
-              break;
-            }
-          }
-          if (!added) {
-            const newPage = createPage();
-            addDeleteButton(newPage, pages.length - 1);
-            addMediaToPage(newPage, data.url, data.timestamp, key);
-            database.ref('settings/pageCount').set(pages.length);
-            currentIndex = pages.length - 1;
-            updatePages();
-          }
-        });
-      });
+      // Si creamos páginas extras → actualizar conteo una sola vez
+      if (extraPagesCreated) {
+        database.ref('settings/pageCount').set(pages.length);
+      }
+
+      // Finalmente: actualizar vista y números con el total definitivo
+      updatePages();
     });
+  });
+});
 
     $("#addPageBtn").click(function() {
       const newPage = createPage();
@@ -341,6 +358,7 @@ $("#nextPage").click(function() {
   </script>
 </body>
 </html>
+
 
 
 
