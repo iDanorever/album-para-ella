@@ -284,18 +284,21 @@
     });
 
     $("#prevPage").click(function() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updatePages();
-      }
-    });
+  if (currentIndex > 0) {
+    currentIndex--;
+    updatePages();
+  }
+});
 
-    $("#nextPage").click(function() {
-      if (currentIndex < pages.length - 1) {
-        currentIndex++;
-        updatePages();
-      }
-    });
+$("#nextPage").click(function() {
+  if (currentIndex < pages.length - 1) {
+    currentIndex++;
+    updatePages();
+  } else {
+    // Opcional: alerta si estás en la última
+    // alert("¡Estás en la última página! Agrega una nueva si quieres más.");
+  }
+});
 
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const file = document.getElementById('fileInput').files[0];
@@ -338,6 +341,7 @@
   </script>
 </body>
 </html>
+
 
 
 
