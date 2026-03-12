@@ -98,9 +98,9 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 
-    #addPageBtn { padding: 12px 32px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; margin: 20px auto; display: block; }
-    .navigation-arrows { display: flex; position: fixed; bottom: 40px; left: 0; right: 0; justify-content: space-between; padding: 0 30px; z-index: 1000; }
-    .navigation-arrows button { background: rgba(255,105,180,0.85); color: white; border: none; border-radius: 50%; width: 65px; height: 65px; font-size: 2.2em; cursor: pointer; box-shadow: 0 5px 12px rgba(0,0,0,0.25); }
+    #addPageBtn { padding: 12px 32px; background: #ff69b4; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1em; margin: 20px auto; display: block; z-index: 9999; pointer-events: auto; }
+    .navigation-arrows { display: flex; position: fixed; bottom: 40px; left: 0; right: 0; justify-content: space-between; padding: 0 30px; z-index: 900; }
+    .navigation-arrows button { background: rgba(255,105,180,0.85); color: white; border: none; border-radius: 50%; width: 65px; height: 65px; font-size: 2.2em; cursor: pointer; box-shadow: 0 5px 12px rgba(0,0,0,0.25); z-index: 901; }
     .form-container { max-width: 420px; margin: 25px auto; text-align: center; }
     @media (max-width: 768px) { 
       #album { width: 96%; height: 580px; } 
@@ -370,6 +370,7 @@ $("#nextPage").click(function() {
   </script>
 </body>
 </html>
+
 
 
 
